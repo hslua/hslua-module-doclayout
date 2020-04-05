@@ -1,8 +1,8 @@
-cabal-version:       2.4
+cabal-version:       2.0
 name:                hslua-module-doclayout
-version:             0.0.0.0
+version:             0.0.0
 synopsis:            Lua module wrapping Text.DocLayout.
-description:         Lua module wrapping Text.DocLayout.
+description:         Lua module wrapping @Text.DocLayout@.
 homepage:            https://github.com/hslua/hslua-module-doclayout
 bug-reports:         https://github.com/hslua/hslua-module-doclayout/issues
 license:             MIT
@@ -24,9 +24,11 @@ source-repository head
   type:                git
   location:            https://github.com/hslua/hslua-module-doclayout.git
 
-common common-options
-  build-depends:       base >= 4.9.1.0 && < 4.14
-  
+library
+  build-depends:       base >= 4.9 && < 4.14
+  default-language:    Haskell2010
+  hs-source-dirs:      src
+  exposed-modules:     HsluaModuleDoclayout
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
@@ -42,19 +44,27 @@ common common-options
   if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
 
-  default-language:    Haskell2010
-
-library
-  import:              common-options
-  hs-source-dirs:      src
-  exposed-modules:     HsluaModuleDoclayout
-
 test-suite hslua-module-doclayout-test
-  import:              common-options
+  build-depends:       base >= 4.9 && < 4.14
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       hslua-module-doclayout
+  default-language:    Haskell2010
   ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
+                       -Wall
+                       -Wcompat
+                       -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+  if impl(ghc >= 8.0)
+    ghc-options:       -Wredundant-constraints
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+  if impl(ghc >= 8.8)
+    ghc-options:       -Wmissing-deriving-strategies
