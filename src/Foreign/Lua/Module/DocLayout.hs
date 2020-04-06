@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -68,6 +69,10 @@ import qualified Foreign.Lua as Lua
 import qualified Foreign.Lua.Types.Peekable as Lua
 import qualified Foreign.Lua.Userdata as Lua
 import qualified Text.DocLayout as Doc
+
+#if ! MIN_VERSION_base(4, 11, 0)
+import Data.Monoid ((<>))
+#endif
 
 --
 -- Module
