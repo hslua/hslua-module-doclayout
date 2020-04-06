@@ -38,6 +38,17 @@ return {
       assert.are_equal(doclayout.render('hello world'), 'hello world')
     end),
 
+    test('equality', function ()
+      assert.is_truthy(doclayout.literal "true", doclayout.literal "true")
+    end),
+
+    test('concatenate docs', function ()
+      assert.are_equal(
+        tostring(doclayout.literal 'Rock-' .. doclayout.literal 'Ola'),
+       'Rock-Ola'
+      )
+    end),
+
     test('has tostring method', function ()
       local str = 'just a literal string for now'
       assert.are_equal(tostring(str), str)

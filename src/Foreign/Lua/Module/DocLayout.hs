@@ -248,7 +248,9 @@ instance Peekable (Doc Text) where
 pushDoc :: Doc Text -> Lua ()
 pushDoc = Lua.pushAnyWithMetatable pushDocMT
   where
-    pushDocMT = Lua.ensureUserdataMetatable docTypeName $
+    pushDocMT = Lua.ensureUserdataMetatable docTypeName $ do
+      Lua.addfunction "__concat"   __concat
+      Lua.addfunction "__eq"       __eq
       Lua.addfunction "__tostring" __tostring
 
 instance Pushable (Doc Text) where
@@ -257,3 +259,11 @@ instance Pushable (Doc Text) where
 -- | Convert to string by rendering without reflowing.
 __tostring :: Doc Text -> Lua Text
 __tostring d = return $ Doc.render Nothing d
+
+-- | Concatenate two @'Doc'@.
+__concat :: Doc Text -> Doc Text -> Lua (Doc Text)
+__concat a b = return (a <> b)
+
+-- | Test @'Doc'@ equality.
+__eq :: Doc Text -> Doc Text -> Lua Bool
+__eq a b = return (a == b)
