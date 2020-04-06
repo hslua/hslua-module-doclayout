@@ -202,7 +202,7 @@ lblock width = return . Doc.lblock width
 literal :: Text -> Lua (Doc Text)
 literal = return . Doc.literal
 
--- | Indents a @'Doc' by the specified number of spaces.
+-- | Indents a @'Doc'@ by the specified number of spaces.
 nest :: Int -> Doc Text -> Lua (Doc Text)
 nest ind = return . Doc.nest ind
 
@@ -230,7 +230,7 @@ quotes = return . Doc.quotes
 
 -- | Like @'lblock'@ but aligned to the right.
 rblock :: Int -> Doc Text -> Lua (Doc Text)
-rblock ind = return . Doc.rblock ind
+rblock width = return . Doc.rblock width
 
 -- | A breaking (reflowable) space.
 space :: Doc Text
