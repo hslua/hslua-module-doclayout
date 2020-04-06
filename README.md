@@ -332,6 +332,12 @@ If `a` and `b` are `Doc` elements, then `a // b` puts `a` above
 
 Returns `true` iff `doc` is the empty document, `false` otherwise.
 
+#### offset
+
+`offset (doc)`
+
+Returns the width of a `Doc` (as number of characters).
+
 
 License
 -------

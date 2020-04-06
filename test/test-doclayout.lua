@@ -58,6 +58,11 @@ return {
       assert.is_truthy(doclayout.is_empty(doclayout.empty))
       assert.is_truthy(doclayout.is_empty(''))
       assert.is_falsy(doclayout.is_empty('non-empty'))
+    end),
+
+    test('offset', function ()
+      assert.are_equal(doclayout.offset 'four', 4)
+      assert.are_equal(doclayout.offset(doclayout.literal 'four' / 'radio'), 5)
     end)
   },
 

@@ -53,6 +53,7 @@ module Foreign.Lua.Module.DocLayout (
 
   -- * Document Querying
   , is_empty
+  , offset
 
   -- * Marshaling
   , peekDoc
@@ -114,6 +115,7 @@ pushModule = do
   Lua.addfunction "vfill"      vfill
   -- querying
   Lua.addfunction "is_empty"   is_empty
+  Lua.addfunction "offset"     offset
   -- rendering
   Lua.addfunction "render" render
   return 1
@@ -137,6 +139,9 @@ render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
 is_empty :: Doc Text -> Lua Bool
 is_empty = return . Doc.isEmpty
 
+-- | Returns the width of a @'Doc'@.
+offset :: Doc Text -> Lua Int
+offset = return . Doc.offset
 
 --
 -- Constructors
