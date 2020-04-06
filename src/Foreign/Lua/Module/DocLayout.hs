@@ -29,6 +29,7 @@ module Foreign.Lua.Module.DocLayout (
   , brackets
   , cblock
   , chomp
+  , concat
   , cr
   , double_quotes
   , empty
@@ -49,7 +50,6 @@ module Foreign.Lua.Module.DocLayout (
 
   -- * Functions
   , render
-  , concat
 
   -- * Marshaling
   , peekDoc
@@ -94,6 +94,7 @@ pushModule = do
   Lua.addfunction "brackets"   brackets
   Lua.addfunction "cblock"     cblock
   Lua.addfunction "chomp"      chomp
+  Lua.addfunction "concat"     concat
   Lua.addfunction "double_quotes" double_quotes
   Lua.addfunction "flush"      flush
   Lua.addfunction "hang"       hang
@@ -108,8 +109,7 @@ pushModule = do
   Lua.addfunction "prefixed"   prefixed
   Lua.addfunction "rblock"     rblock
   Lua.addfunction "vfill"      vfill
-  -- renderign
-  Lua.addfunction "concat" concat
+  -- rendering
   Lua.addfunction "render" render
   return 1
 
@@ -123,13 +123,6 @@ preloadModule = flip Lua.preloadhs pushModule
 -- line length parameter is omitted or nil.
 render :: Doc Text -> Optional Int -> Lua Text
 render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
-
--- | Concatenates a list of @'Doc'@s.
-concat :: [Doc Text] -> Optional (Doc Text) -> Lua (Doc Text)
-concat docs optSep = return $
-  case Lua.fromOptional optSep of
-    Nothing  -> mconcat docs
-    Just sep -> mconcat $ intersperse sep docs
 
 --
 -- Constructors
@@ -168,6 +161,13 @@ cblock width = return . Doc.cblock width
 -- | Chomps trailing blank space off of a @'Doc'@.
 chomp :: Doc Text -> Lua (Doc Text)
 chomp = return . Doc.chomp
+
+-- | Concatenates a list of @'Doc'@s.
+concat :: [Doc Text] -> Optional (Doc Text) -> Lua (Doc Text)
+concat docs optSep = return $
+  case Lua.fromOptional optSep of
+    Nothing  -> mconcat docs
+    Just sep -> mconcat $ intersperse sep docs
 
 -- | A carriage return. Does nothing if we're at the beginning of
 -- a line; otherwise inserts a newline.

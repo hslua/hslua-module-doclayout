@@ -67,20 +67,6 @@ Parameters:
 `colwidth`
 :   Maximum number of characters per line
 
-#### concat
-
-`concat (docs[, sep])`
-
-Concatenate the given `Doc`s, interspersing `sep` if specified.
-
-Parameters:
-
-`docs`
-:   List of `Doc`s
-
-`sep`
-:   Separator `Doc`
-
 ### Doc construction
 
 All functions return a fresh `Doc` element.
@@ -147,6 +133,20 @@ Parameters:
 `chomp (doc)`
 
 Chomps trailing blank space off of a `Doc`.
+
+#### concat
+
+`concat (docs[, sep])`
+
+Concatenate the given `Doc`s, interspersing `sep` if specified.
+
+Parameters:
+
+`docs`
+:   List of `Doc`s
+
+`sep`
+:   Separator `Doc`
 
 #### cr
 

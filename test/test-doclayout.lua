@@ -23,14 +23,6 @@ return {
     test('space', function ()
       assert.are_equal(type(doclayout.space), 'userdata')
     end),
-  },
-
-  group 'functions' {
-    group 'render' {
-      test('empty doc', function ()
-        assert.are_equal(doclayout.render(doclayout.empty), '')
-      end)
-    },
 
     group 'concat' {
       test('without sep', function ()
@@ -53,6 +45,12 @@ return {
         assert.are_equal(doclayout.concat(list), list[1] .. list[2] .. list[3])
       end),
     }
+  },
+
+  group 'render' {
+    test('empty doc', function ()
+      assert.are_equal(doclayout.render(doclayout.empty), '')
+    end)
   },
 
   group 'Doc type' {
