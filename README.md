@@ -324,6 +324,14 @@ If `a` and `b` are `Doc` elements, then `a / b` puts `a` above `b`.
 If `a` and `b` are `Doc` elements, then `a // b` puts `a` above
 `b`, inserting a blank line between them.
 
+### Document Querying
+
+#### is_empty
+
+`is_empty (doc)`
+
+Returns `true` iff `doc` is the empty document, `false` otherwise.
+
 
 License
 -------

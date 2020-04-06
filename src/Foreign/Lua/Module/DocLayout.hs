@@ -48,8 +48,11 @@ module Foreign.Lua.Module.DocLayout (
   , space
   , vfill
 
-  -- * Functions
+  -- * Rendering
   , render
+
+  -- * Document Querying
+  , is_empty
 
   -- * Marshaling
   , peekDoc
@@ -109,6 +112,8 @@ pushModule = do
   Lua.addfunction "prefixed"   prefixed
   Lua.addfunction "rblock"     rblock
   Lua.addfunction "vfill"      vfill
+  -- querying
+  Lua.addfunction "is_empty"   is_empty
   -- rendering
   Lua.addfunction "render" render
   return 1
@@ -123,6 +128,15 @@ preloadModule = flip Lua.preloadhs pushModule
 -- line length parameter is omitted or nil.
 render :: Doc Text -> Optional Int -> Lua Text
 render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
+
+--
+-- Querying
+--
+
+-- | @True@ iff the document is empty.
+is_empty :: Doc Text -> Lua Bool
+is_empty = return . Doc.isEmpty
+
 
 --
 -- Constructors

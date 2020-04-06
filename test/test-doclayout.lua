@@ -53,6 +53,14 @@ return {
     end)
   },
 
+  group 'document querying' {
+    test('is_empty', function ()
+      assert.is_truthy(doclayout.is_empty(doclayout.empty))
+      assert.is_truthy(doclayout.is_empty(''))
+      assert.is_falsy(doclayout.is_empty('non-empty'))
+    end)
+  },
+
   group 'Doc type' {
     test('empty strings equal the empty Doc', function ()
       assert.are_equal(doclayout.empty .. '', doclayout.empty)
