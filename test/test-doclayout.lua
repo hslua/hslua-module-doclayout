@@ -34,6 +34,10 @@ return {
   },
 
   group 'Doc type' {
+    test('empty strings equal the empty Doc', function ()
+      assert.are_equal(doclayout.empty .. '', doclayout.empty)
+    end),
+
     test('strings can be used as Doc values', function ()
       assert.are_equal(doclayout.render('hello world'), 'hello world')
     end),
