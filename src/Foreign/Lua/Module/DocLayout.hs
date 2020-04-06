@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : Foreign.Lua.Module.DocLayout
@@ -20,11 +21,16 @@ module Foreign.Lua.Module.DocLayout (
 
   -- * Functions
   , render
+
+  -- * Marshaling
+  , peekDoc
+  , pushDoc
   )
 where
 
 import Data.Text (Text)
-import Foreign.Lua (Lua, NumResults (..), Optional, Peekable, Pushable)
+import Foreign.Lua (Lua, NumResults (..), Optional,
+                    Peekable, Pushable, StackIndex)
 import Text.DocLayout (Doc)
 
 import qualified Foreign.Lua as Lua
@@ -48,13 +54,28 @@ preloadModule :: String -> Lua ()
 preloadModule = flip Lua.preloadhs pushModule
 
 -- | Render a @'Doc'@. The text is reflowed on breakable spaces
--- to match the line length if a line length is provided. Text is
--- not reflowed if the parameter is omitted or nil.
+-- to match the given line length. Text is not reflowed if the
+-- line length parameter is omitted or nil.
 render :: Doc Text -> Optional Int -> Lua Text
 render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
 
+--
+-- Marshaling
+--
+
+-- | Retrieve a @Doc Text@ value from the Lua stack. Strings are
+-- converted to plain @'Doc'@ values.
+peekDoc :: StackIndex -> Lua (Doc Text)
+peekDoc idx = Lua.ltype idx >>= \case
+    Lua.TypeString   -> Doc.literal <$> Lua.peek idx
+    _                -> Lua.peekAny idx
+
 instance Peekable (Doc Text) where
-  peek = Lua.peekAny
+  peek = peekDoc
+
+-- | Push a @Doc Text@ value to the Lua stack.
+pushDoc :: Doc Text -> Lua ()
+pushDoc = Lua.pushAny
 
 instance Pushable (Doc Text) where
-  push = Lua.pushAny
+  push = pushDoc

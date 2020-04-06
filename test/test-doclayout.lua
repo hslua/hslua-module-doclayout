@@ -22,5 +22,11 @@ return {
         assert.are_equal(doclayout.render(doclayout.empty_doc), '')
       end)
     }
+  },
+
+  group 'Doc type' {
+    test('strings can be used as Doc values', function ()
+      assert.are_equal(doclayout.render('hello world'), 'hello world')
+    end)
   }
 }
