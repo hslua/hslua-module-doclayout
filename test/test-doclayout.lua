@@ -52,6 +52,13 @@ return {
     test('has tostring method', function ()
       local str = 'just a literal string for now'
       assert.are_equal(tostring(str), str)
+    end),
+
+    test('adding concatenates with space', function ()
+      local helloworld = doclayout.literal "Hello,"
+        .. doclayout.space
+        .. doclayout.literal "World"
+      assert.are_equal(doclayout.literal 'Hello,' + 'World', helloworld)
     end)
   }
 }
