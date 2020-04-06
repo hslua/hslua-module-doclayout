@@ -10,16 +10,25 @@ local assert = tasty.assert
 
 -- Check existence static fields
 return {
-  group 'static fields' {
-    test('empty_doc', function ()
-      assert.are_equal(type(doclayout.empty_doc), 'userdata')
+  group 'constructors' {
+    test('empty', function ()
+      assert.are_equal(type(doclayout.empty), 'userdata')
+    end),
+    test('blankline', function ()
+      assert.are_equal(type(doclayout.blankline), 'userdata')
+    end),
+    test('cr', function ()
+      assert.are_equal(type(doclayout.cr), 'userdata')
+    end),
+    test('space', function ()
+      assert.are_equal(type(doclayout.space), 'userdata')
     end),
   },
 
   group 'functions' {
     group 'render' {
       test('empty doc', function ()
-        assert.are_equal(doclayout.render(doclayout.empty_doc), '')
+        assert.are_equal(doclayout.render(doclayout.empty), '')
       end)
     }
   },
