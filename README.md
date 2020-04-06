@@ -2,7 +2,6 @@
 
 [![GitHub CI][CI badge]](https://github.com/hslua/hslua-module-doclayout/actions)
 [![Build status][Travis badge]](https://travis-ci.org/hslua/hslua-module-doclayout)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/hslua/hslua-module-doclayout?branch=master&svg=true)](https://ci.appveyor.com/project/hslua/hslua-module-doclayout)
 [![Hackage][Hackage badge]](https://hackage.haskell.org/package/hslua-module-doclayout)
 [![Stackage Lts][Stackage Lts badge]](http://stackage.org/lts/package/hslua-module-doclayout)
 [![Stackage Nightly][Stackage Nightly badge]](http://stackage.org/nightly/package/hslua-module-doclayout)
