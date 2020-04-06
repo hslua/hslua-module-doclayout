@@ -30,6 +30,28 @@ return {
       test('empty doc', function ()
         assert.are_equal(doclayout.render(doclayout.empty), '')
       end)
+    },
+
+    group 'concat' {
+      test('without sep', function ()
+        local list = {
+          doclayout.literal 'one',
+          doclayout.literal 'two',
+          doclayout.literal 'three'
+        }
+        local sep = doclayout.cr
+        assert.are_equal(
+          doclayout.concat(list, sep),
+          list[1] .. sep .. list[2] .. sep .. list[3])
+      end),
+      test('without sep', function ()
+        local list = {
+          doclayout.literal 'one',
+          doclayout.literal 'two',
+          doclayout.literal 'three'
+        }
+        assert.are_equal(doclayout.concat(list), list[1] .. list[2] .. list[3])
+      end),
     }
   },
 

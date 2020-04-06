@@ -48,6 +48,7 @@ module Foreign.Lua.Module.DocLayout (
 
   -- * Functions
   , render
+  , concat
 
   -- * Marshaling
   , peekDoc
@@ -55,6 +56,8 @@ module Foreign.Lua.Module.DocLayout (
   )
 where
 
+import Prelude hiding (concat)
+import Data.List (intersperse)
 import Data.Text (Text)
 import Foreign.Lua (Lua, NumResults (..), Optional,
                     Peekable, Pushable, StackIndex)
@@ -101,6 +104,7 @@ pushModule = do
   Lua.addfunction "rblock"     rblock
   Lua.addfunction "vfill"      vfill
   -- renderign
+  Lua.addfunction "concat" concat
   Lua.addfunction "render" render
   return 1
 
@@ -114,6 +118,13 @@ preloadModule = flip Lua.preloadhs pushModule
 -- line length parameter is omitted or nil.
 render :: Doc Text -> Optional Int -> Lua Text
 render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
+
+-- | Concatenates a list of @'Doc'@s.
+concat :: [Doc Text] -> Optional (Doc Text) -> Lua (Doc Text)
+concat docs optSep = return $
+  case Lua.fromOptional optSep of
+    Nothing  -> mconcat docs
+    Just sep -> mconcat $ intersperse sep docs
 
 --
 -- Constructors
