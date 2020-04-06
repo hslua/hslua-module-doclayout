@@ -34,6 +34,8 @@ import Foreign.Lua (Lua, NumResults (..), Optional,
 import Text.DocLayout (Doc)
 
 import qualified Foreign.Lua as Lua
+import qualified Foreign.Lua.Types.Peekable as Lua
+import qualified Foreign.Lua.Userdata as Lua
 import qualified Text.DocLayout as Doc
 
 --
@@ -63,19 +65,32 @@ render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
 -- Marshaling
 --
 
+-- | Name used for the @Doc@ Lua userdata values.
+docTypeName :: String
+docTypeName = "HsLua DocLayout.Doc"
+
 -- | Retrieve a @Doc Text@ value from the Lua stack. Strings are
 -- converted to plain @'Doc'@ values.
 peekDoc :: StackIndex -> Lua (Doc Text)
 peekDoc idx = Lua.ltype idx >>= \case
-    Lua.TypeString   -> Doc.literal <$> Lua.peek idx
-    _                -> Lua.peekAny idx
+  Lua.TypeString   -> Doc.literal <$> Lua.peek idx
+  _                -> Lua.reportValueOnFailure docTypeName
+                        (`Lua.toAnyWithName` docTypeName)
+                        idx
 
 instance Peekable (Doc Text) where
   peek = peekDoc
 
 -- | Push a @Doc Text@ value to the Lua stack.
 pushDoc :: Doc Text -> Lua ()
-pushDoc = Lua.pushAny
+pushDoc = Lua.pushAnyWithMetatable pushDocMT
+  where
+    pushDocMT = Lua.ensureUserdataMetatable docTypeName $
+      Lua.addfunction "__tostring" __tostring
 
 instance Pushable (Doc Text) where
   push = pushDoc
+
+-- | Convert to string by rendering without reflowing.
+__tostring :: Doc Text -> Lua Text
+__tostring d = return $ Doc.render Nothing d

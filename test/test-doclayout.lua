@@ -27,6 +27,11 @@ return {
   group 'Doc type' {
     test('strings can be used as Doc values', function ()
       assert.are_equal(doclayout.render('hello world'), 'hello world')
+    end),
+
+    test('has tostring method', function ()
+      local str = 'just a literal string for now'
+      assert.are_equal(tostring(str), str)
     end)
   }
 }
