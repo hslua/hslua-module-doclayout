@@ -58,7 +58,7 @@ where
 import Data.Text (Text)
 import Foreign.Lua (Lua, NumResults (..), Optional,
                     Peekable, Pushable, StackIndex)
-import Text.DocLayout (Doc, (<+>), ($$))
+import Text.DocLayout (Doc, (<+>), ($$), ($+$))
 
 import qualified Data.Text as T
 import qualified Foreign.Lua as Lua
@@ -253,6 +253,7 @@ pushDoc = Lua.pushAnyWithMetatable pushDocMT
       Lua.addfunction "__concat"   __concat
       Lua.addfunction "__div"      __div
       Lua.addfunction "__eq"       __eq
+      Lua.addfunction "__idiv"     __idiv
       Lua.addfunction "__tostring" __tostring
 
 instance Pushable (Doc Text) where
@@ -273,6 +274,10 @@ __div a b = return (a $$ b)
 -- | Test @'Doc'@ equality.
 __eq :: Doc Text -> Doc Text -> Lua Bool
 __eq a b = return (a == b)
+
+-- | @a // b@ puts @a@ above @b@.
+__idiv :: Doc Text -> Doc Text -> Lua (Doc Text)
+__idiv a b = return (a $+$ b)
 
 -- | Convert to string by rendering without reflowing.
 __tostring :: Doc Text -> Lua Text

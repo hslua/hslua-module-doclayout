@@ -62,9 +62,15 @@ return {
     end),
 
     test('dividing sets the first above the second', function ()
+           local first = doclayout.literal 'first'
+           local second = doclayout.literal 'second'
+           assert.are_equal(first / second, first .. doclayout.cr .. second)
+    end),
+
+    test('// separates docs with blank line', function ()
       local first = doclayout.literal 'first'
       local second = doclayout.literal 'second'
-      assert.are_equal(first / second, first .. doclayout.cr .. second)
+      assert.are_equal(first // second, first .. doclayout.blankline .. second)
     end),
   }
 }
