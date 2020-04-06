@@ -15,4 +15,12 @@ return {
       assert.are_equal(type(doclayout.empty_doc), 'userdata')
     end),
   },
+
+  group 'functions' {
+    group 'render' {
+      test('empty doc', function ()
+        assert.are_equal(doclayout.render(doclayout.empty_doc), '')
+      end)
+    }
+  }
 }

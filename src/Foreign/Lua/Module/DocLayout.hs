@@ -17,14 +17,18 @@ module Foreign.Lua.Module.DocLayout (
   -- * Module
     pushModule
   , preloadModule
+
+  -- * Functions
+  , render
   )
 where
 
 import Data.Text (Text)
-import Foreign.Lua (Lua, NumResults (..), Pushable)
-import Text.DocLayout (Doc, empty)
+import Foreign.Lua (Lua, NumResults (..), Optional, Peekable, Pushable)
+import Text.DocLayout (Doc)
 
 import qualified Foreign.Lua as Lua
+import qualified Text.DocLayout as Doc
 
 --
 -- Module
@@ -34,13 +38,23 @@ import qualified Foreign.Lua as Lua
 pushModule :: Lua NumResults
 pushModule = do
   Lua.newtable
-  Lua.addfield "empty_doc" (empty :: Doc Text)
+  Lua.addfield "empty_doc" (Doc.empty :: Doc Text)
+  Lua.addfunction "render" render
   return 1
 
 -- | Add the @doclayout@ module under the given name to the table
 -- of preloaded packages.
 preloadModule :: String -> Lua ()
 preloadModule = flip Lua.preloadhs pushModule
+
+-- | Render a @'Doc'@. The text is reflowed on breakable spaces
+-- to match the line length if a line length is provided. Text is
+-- not reflowed if the parameter is omitted or nil.
+render :: Doc Text -> Optional Int -> Lua Text
+render doc optLength = return $ Doc.render (Lua.fromOptional optLength) doc
+
+instance Peekable (Doc Text) where
+  peek = Lua.peekAny
 
 instance Pushable (Doc Text) where
   push = Lua.pushAny
