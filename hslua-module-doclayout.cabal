@@ -14,6 +14,7 @@ category:            Foreign
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
+extra-source-files:  test/test-doclayout.lua
 tested-with:         GHC == 8.0.2
                      GHC == 8.2.2
                      GHC == 8.4.4
@@ -48,10 +49,16 @@ library
     ghc-options:       -Wmissing-deriving-strategies
 
 test-suite hslua-module-doclayout-test
-  build-depends:       base >= 4.9 && < 4.14
+  build-depends:       base                    >= 4.9 && < 5
+                     , doclayout               >= 0.3 && < 0.4
+                     , hslua
+                     , hslua-module-doclayout
+                     , tasty
+                     , tasty-hunit
+                     , tasty-lua               >= 0.2 && < 0.3
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             test-hslua-module-doclayout.hs
   build-depends:       hslua-module-doclayout
   default-language:    Haskell2010
   ghc-options:         -threaded
