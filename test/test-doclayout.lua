@@ -55,10 +55,16 @@ return {
     end),
 
     test('adding concatenates with space', function ()
-      local helloworld = doclayout.literal "Hello,"
+      local helloworld = doclayout.literal 'Hello,'
         .. doclayout.space
-        .. doclayout.literal "World"
+        .. doclayout.literal 'World'
       assert.are_equal(doclayout.literal 'Hello,' + 'World', helloworld)
-    end)
+    end),
+
+    test('dividing sets the first above the second', function ()
+      local first = doclayout.literal 'first'
+      local second = doclayout.literal 'second'
+      assert.are_equal(first / second, first .. doclayout.cr .. second)
+    end),
   }
 }
