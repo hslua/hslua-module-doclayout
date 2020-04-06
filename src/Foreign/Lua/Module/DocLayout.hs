@@ -237,6 +237,7 @@ docTypeName = "HsLua DocLayout.Doc"
 peekDoc :: StackIndex -> Lua (Doc Text)
 peekDoc idx = Lua.ltype idx >>= \case
   Lua.TypeString   -> Doc.literal <$> Lua.peek idx
+  Lua.TypeNumber   -> Doc.literal <$> Lua.peek idx
   _                -> Lua.reportValueOnFailure docTypeName
                         (`Lua.toAnyWithName` docTypeName)
                         idx

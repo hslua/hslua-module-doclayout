@@ -38,6 +38,10 @@ return {
       assert.are_equal(doclayout.render('hello world'), 'hello world')
     end),
 
+    test('numbers can be used as Doc values', function ()
+      assert.are_equal(doclayout.render(42), '42')
+    end),
+
     test('equality', function ()
       assert.is_truthy(doclayout.literal "true", doclayout.literal "true")
     end),
