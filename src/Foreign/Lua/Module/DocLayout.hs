@@ -53,7 +53,11 @@ module Foreign.Lua.Module.DocLayout (
 
   -- * Document Querying
   , is_empty
+  , height
+  , min_offset
   , offset
+  , real_length
+  , update_column
 
   -- * Marshaling
   , peekDoc
@@ -116,6 +120,11 @@ pushModule = do
   -- querying
   Lua.addfunction "is_empty"   is_empty
   Lua.addfunction "offset"     offset
+  Lua.addfunction "height"     height
+  Lua.addfunction "min_offset" min_offset
+  Lua.addfunction "offset"     offset
+  Lua.addfunction "real_length" real_length
+  Lua.addfunction "update_column" update_column
   -- rendering
   Lua.addfunction "render" render
   return 1
@@ -142,6 +151,26 @@ is_empty = return . Doc.isEmpty
 -- | Returns the width of a @'Doc'@.
 offset :: Doc Text -> Lua Int
 offset = return . Doc.offset
+
+-- | Returns the minimal width of a @'Doc'@ when reflowed at
+-- breakable spaces.
+min_offset :: Doc Text -> Lua Int
+min_offset = return . Doc.minOffset
+
+-- | Returns the column that would be occupied by the last laid
+-- out character.
+update_column :: Doc Text -> Int -> Lua Int
+update_column doc = return . Doc.updateColumn doc
+
+-- | Returns the height of a block or other Doc.
+height :: Doc Text -> Lua Int
+height = return . Doc.height
+
+-- | Returns the real length of a string in a monospace font: 0
+-- for a combining character, 1, for a regular character, 2 for
+-- an East Asian wide character.
+real_length :: Text -> Lua Int
+real_length = return . Doc.realLength
 
 --
 -- Constructors

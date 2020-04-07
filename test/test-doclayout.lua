@@ -60,10 +60,32 @@ return {
       assert.is_falsy(doclayout.is_empty('non-empty'))
     end),
 
+    test('height', function ()
+      assert.are_equal(doclayout.height(doclayout.empty), 1)
+      assert.are_equal(doclayout.height('line'), 1)
+      assert.are_equal(doclayout.height(doclayout.literal 'p' / 'q'), 2)
+      assert.are_equal(doclayout.height(doclayout.literal 'p' // 'q'), 3)
+    end),
+
+    test('min_offset', function ()
+      assert.are_equal(doclayout.min_offset 'four', 4)
+      assert.are_equal(
+        doclayout.min_offset(doclayout.literal 'four' + 'radio'),
+        5
+      )
+    end),
+
     test('offset', function ()
       assert.are_equal(doclayout.offset 'four', 4)
       assert.are_equal(doclayout.offset(doclayout.literal 'four' / 'radio'), 5)
-    end)
+    end),
+
+    test('real_length', function ()
+      assert.are_equal(doclayout.real_length(''), 0)
+      assert.are_equal(doclayout.real_length('a'), 1)
+      assert.are_equal(doclayout.real_length('❄'), 1)
+      assert.are_equal(doclayout.real_length('シ'), 2)
+    end),
   },
 
   group 'Doc type' {

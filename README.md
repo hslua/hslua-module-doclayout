@@ -332,6 +332,33 @@ If `a` and `b` are `Doc` elements, then `a // b` puts `a` above
 
 Returns `true` iff `doc` is the empty document, `false` otherwise.
 
+#### min_offset
+
+`min_offset (doc)`
+
+Returns the minimal width of a @'Doc'@ when reflowed at breakable
+spaces.
+
+#### update_column
+
+`update_column (doc, i)`
+
+Returns the column that would be occupied by the last laid out character.
+
+#### height
+
+`height (doc)`
+
+Returns the height of a block or other Doc.
+
+#### real_length
+
+`real_length (str)`
+
+Returns the real length of a string in a monospace font: 0 for a
+combining character, 1, for a regular character, 2 for an East
+Asian wide character.
+
 #### offset
 
 `offset (doc)`
