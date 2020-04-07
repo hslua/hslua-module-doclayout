@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                hslua-module-doclayout
-version:             0.0.0
+version:             0.1.0
 synopsis:            Lua module wrapping Text.DocLayout.
 description:         Lua module wrapping @Text.DocLayout@.
 homepage:            https://github.com/hslua/hslua-module-doclayout
