@@ -1,1 +1,4 @@
 resolver: lts-15.5
+extra-deps:
+  - hslua-1.2.0
+  - tasty-lua-0.2.3
