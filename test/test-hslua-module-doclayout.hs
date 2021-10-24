@@ -12,7 +12,7 @@ module Main (main) where
 
 import Control.Monad (void)
 import HsLua (Lua)
-import Foreign.Lua.Module.DocLayout (documentedModule)
+import HsLua.Module.DocLayout (documentedModule)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit (assertEqual, testCase)
 import Test.Tasty.Lua (translateResultsFromFile)
