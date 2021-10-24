@@ -6,11 +6,9 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : Foreign.Lua.Module.DocLayout
-Copyright   : © 2020 Albert Krewinkel
+Copyright   : © 2020-2021 Albert Krewinkel
 License     : MIT
 Maintainer  : Albert Krewinkel <albert+hslua@zeitkraut.de>
-Stability   : alpha
-Portability : Requires GHC 8 or later.
 
 Provides a Lua module which wraps @'Text.DocLayout'@. The @Doc'
 type is specialized to @'Text'@.
