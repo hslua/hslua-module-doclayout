@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
-Module      : Foreign.Lua.Module.DocLayout
+Module      : HsLua.Module.DocLayout
 Copyright   : © 2020-2021 Albert Krewinkel
 License     : MIT
 Maintainer  : Albert Krewinkel <albert+hslua@zeitkraut.de>
@@ -15,7 +15,7 @@ type is specialized to @'Text'@.
 
 This module defines orphan instances for @Doc Text@.
 -}
-module Foreign.Lua.Module.DocLayout (
+module HsLua.Module.DocLayout (
   -- * Module
     documentedModule
   , pushModule
