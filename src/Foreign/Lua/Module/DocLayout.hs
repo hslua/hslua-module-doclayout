@@ -19,7 +19,8 @@ This module defines orphan instances for @Doc Text@.
 -}
 module Foreign.Lua.Module.DocLayout (
   -- * Module
-    pushModule
+    documentedModule
+  , pushModule
   , preloadModule
   , description
   , fields
@@ -71,22 +72,12 @@ module Foreign.Lua.Module.DocLayout (
 where
 
 import Prelude hiding (concat)
-import Control.Monad (forM_)
 import Data.List (intersperse)
 import Data.Text (Text)
-import Foreign.Lua (Lua, NumResults (..), Peekable, Pushable, StackIndex)
-import Foreign.Lua.Call hiding (render)
-import Foreign.Lua.Module hiding (preloadModule, pushModule, render)
-import Foreign.Lua.Peek
-  (Peeker, peekIntegral, peekList, peekString, peekText, toPeeker)
-import Foreign.Lua.Push (Pusher, pushBool, pushIntegral, pushText)
+import HsLua as Lua hiding (concat, render)
 import Text.DocLayout (Doc, (<+>), ($$), ($+$))
 
 import qualified Data.Text as T
-import qualified Foreign.Lua as Lua
-import qualified Foreign.Lua.Module as Module
-import qualified Foreign.Lua.Types.Peekable as Lua
-import qualified Foreign.Lua.Userdata as Lua
 import qualified Text.DocLayout as Doc
 
 #if ! MIN_VERSION_base(4, 11, 0)
@@ -102,38 +93,21 @@ description :: Text
 description = "Plain-text document layouting."
 
 -- | Self-documenting module.
-documentedModule :: Module
+documentedModule :: LuaError e => Module e
 documentedModule = Module
   { moduleName = "doclayout"
   , moduleFields = fields
   , moduleDescription = description
   , moduleFunctions = functions
+  , moduleOperations = []
   }
-
--- | Pushes the @doclayout@ module to the Lua stack.
-pushModule :: Lua NumResults
-pushModule = 1 <$ pushModule' documentedModule
-
-pushModule' :: Module -> Lua ()
-pushModule' mdl = do
-  Module.pushModule mdl
-  forM_ (moduleFields mdl) $ \field -> do
-    pushText (fieldName field)
-    fieldPushValue field
-    Lua.rawset (Lua.nth 3)
-
--- | Add the @doclayout@ module under the given name to the table
--- of preloaded packages.
-preloadModule :: String -> Lua ()
-preloadModule name = Module.preloadModule $
-  documentedModule { moduleName = T.pack name }
 
 --
 -- Fields
 --
 
 -- | Exposed fields.
-fields :: [Field]
+fields :: LuaError e => [Field e]
 fields =
   [ blankline
   , cr
@@ -142,7 +116,7 @@ fields =
   ]
 
 -- | Wrapped and documented 'Doc.blankline' value.
-blankline :: Field
+blankline :: LuaError e => Field e
 blankline = Field
   { fieldName = "blankline"
   , fieldDescription = "Inserts a blank line unless one exists already."
@@ -150,7 +124,7 @@ blankline = Field
   }
 
 -- | Wrapped and documented 'Doc.cr' value.
-cr :: Field
+cr :: LuaError e => Field e
 cr = Field
   { fieldName = "cr"
   , fieldDescription = "A carriage return. Does nothing if we're at " <>
@@ -160,7 +134,7 @@ cr = Field
   }
 
 -- | Wrapped and documented 'Doc.empty' value.
-empty :: Field
+empty :: LuaError e => Field e
 empty = Field
   { fieldName = "empty"
   , fieldDescription = "The empty document."
@@ -168,7 +142,7 @@ empty = Field
   }
 
 -- | Wrapped and documented 'Doc.space' value.
-space :: Field
+space :: LuaError e => Field e
 space = Field
   { fieldName = "space"
   , fieldDescription = "A breaking (reflowable) space."
@@ -180,48 +154,73 @@ space = Field
 --
 
 -- | Exposed module functions.
-functions :: [(Text, HaskellFunction)]
+functions :: LuaError e => [DocumentedFunction e]
 functions =
   [ -- Constructors
-    ("after_break", after_break)
-  , ("before_non_blank", before_non_blank)
-  , ("blanklines", blanklines)
-  , ("braces", braces)
-  , ("brackets", brackets)
-  , ("cblock", cblock)
-  , ("chomp", chomp)
-  , ("concat", concat)
-  , ("double_quotes", double_quotes)
-  , ("flush", flush)
-  , ("hang", hang)
-  , ("inside", inside)
-  , ("lblock", lblock)
-  , ("literal", literal)
-  , ("nest", nest)
-  , ("nestle", nestle)
-  , ("nowrap", nowrap)
-  , ("parens", parens)
-  , ("prefixed", prefixed)
-  , ("quotes", quotes)
-  , ("rblock", rblock)
-  , ("vfill", vfill)
+    after_break
+  , before_non_blank
+  , blanklines
+  , braces
+  , brackets
+  , cblock
+  , chomp
+  , concat
+  , double_quotes
+  , flush
+  , hang
+  , inside
+  , lblock
+  , literal
+  , nest
+  , nestle
+  , nowrap
+  , parens
+  , prefixed
+  , quotes
+  , rblock
+  , vfill
     -- rendering
-  , ("render", render)
+  , render
     -- querying
-  , ("is_empty", is_empty)
-  , ("height", height)
-  , ("min_offset", min_offset)
-  , ("offset", offset)
-  , ("real_length", real_length)
-  , ("update_column", update_column)
+  , is_empty
+  , height
+  , min_offset
+  , offset
+  , real_length
+  , update_column
   ]
 
+typeDoc :: LuaError e => DocumentedType e (Doc Text)
+typeDoc = deftype "Doc"
+      [ operation Add    $ binaryOp (<+>)
+        "Concatenated docs, with breakable space between them."
+      , operation Concat $ binaryOp (<>) "Concatenation of the input docs"
+      , operation Div    $ binaryOp ($$) "Puts a above b"
+      , operation Eq     $ lambda
+        ### liftPure2 (==)
+        <#> docParam "a"
+        <#> docParam "b"
+        =#> booleanResult "whether the two Docs are equal"
+      , operation Idiv   $ binaryOp ($+$) "Puts a above b"
+      , operation Tostring $ lambda
+        ### liftPure (Doc.render Nothing)
+        <#> docParam "doc"
+        =#> textResult "Rendered Doc without reflowing."
+      ]
+      []
+  where
+    binaryOp op descr = lambda
+      ### liftPure2 op
+      <#> docParam "a"
+      <#> docParam "b"
+      =#> docResult descr
 
 -- | Render a @'Doc'@. The text is reflowed on breakable spaces
 -- to match the given line length. Text is not reflowed if the
 -- line length parameter is omitted or nil.
-render :: HaskellFunction
-render = toHsFnPrecursor (flip Doc.render)
+render :: LuaError e => DocumentedFunction e
+render = defun "render"
+  ### liftPure2 (flip Doc.render)
   <#> docParam "doc"
   <#> optionalParameter (peekIntegral @Int) "integer" "colwidth" ""
   =#> functionResult pushText "Doc" "rendered doc"
@@ -234,23 +233,26 @@ render = toHsFnPrecursor (flip Doc.render)
 --
 
 -- | @True@ iff the document is empty.
-is_empty :: HaskellFunction
-is_empty = toHsFnPrecursor Doc.isEmpty
+is_empty :: LuaError e => DocumentedFunction e
+is_empty = defun "is_empty"
+  ### liftPure Doc.isEmpty
   <#> docParam "doc"
   =#> booleanResult "`true` iff `doc` is the empty document, `false` otherwise."
   #? "Checks whether a doc is empty."
 
 -- | Returns the width of a @'Doc'@.
-offset :: HaskellFunction
-offset = toHsFnPrecursor Doc.offset
+offset :: LuaError e => DocumentedFunction e
+offset = defun "offset"
+  ### liftPure Doc.offset
   <#> docParam "doc"
   =#> intResult "doc width"
   #? "Returns the width of a `Doc` as number of characters."
 
 -- | Returns the minimal width of a @'Doc'@ when reflowed at
 -- breakable spaces.
-min_offset :: HaskellFunction
-min_offset = toHsFnPrecursor Doc.minOffset
+min_offset :: LuaError e => DocumentedFunction e
+min_offset = defun "min_offset"
+  ### liftPure Doc.minOffset
   <#> docParam "doc"
   =#> intResult "minimal possible width"
   #? ("Returns the minimal width of a `Doc` when reflowed at " <>
@@ -258,8 +260,9 @@ min_offset = toHsFnPrecursor Doc.minOffset
 
 -- | Returns the column that would be occupied by the last laid
 -- out character.
-update_column :: HaskellFunction
-update_column = toHsFnPrecursor Doc.updateColumn
+update_column :: LuaError e => DocumentedFunction e
+update_column = defun "update_column"
+  ### liftPure2 Doc.updateColumn
   <#> docParam "doc"
   <#> intParam "i"
   =#> intResult "column number"
@@ -267,8 +270,9 @@ update_column = toHsFnPrecursor Doc.updateColumn
       "laid out character.")
 
 -- | Returns the height of a block or other Doc.
-height :: HaskellFunction
-height = toHsFnPrecursor Doc.height
+height :: LuaError e => DocumentedFunction e
+height = defun "height"
+  ### liftPure Doc.height
   <#> docParam "doc"
   =#> intResult "doc height"
   #? "Returns the height of a block or other Doc."
@@ -277,8 +281,9 @@ height = toHsFnPrecursor Doc.height
 -- | Returns the real length of a string in a monospace font: 0
 -- for a combining character, 1, for a regular character, 2 for
 -- an East Asian wide character.
-real_length :: HaskellFunction
-real_length = toHsFnPrecursor Doc.realLength
+real_length :: DocumentedFunction e
+real_length = defun "real_length"
+  ### liftPure Doc.realLength
   <#> textParam "str"
   =#> intResult "text length"
   #? ("Returns the real length of a string in a monospace font: " <>
@@ -291,8 +296,9 @@ real_length = toHsFnPrecursor Doc.realLength
 
 -- | Creates a @'Doc'@ which is conditionally included only if it
 -- comes at the beginning of a line.
-after_break :: HaskellFunction
-after_break = toHsFnPrecursor Doc.afterBreak
+after_break :: LuaError e => DocumentedFunction e
+after_break = defun "after_break"
+  ### liftPure Doc.afterBreak
   <#> textParam "text"
   =#> docResult "new doc"
   #? ("Creates a `Doc` which is conditionally included only if it" <>
@@ -300,37 +306,42 @@ after_break = toHsFnPrecursor Doc.afterBreak
 
 -- | Conditionally includes the given @'Doc'@ unless it is
 -- followed by a blank space.
-before_non_blank :: HaskellFunction
-before_non_blank = toHsFnPrecursor Doc.beforeNonBlank
+before_non_blank :: LuaError e => DocumentedFunction e
+before_non_blank = defun "before_non_blank"
+  ### liftPure Doc.beforeNonBlank
   <#> docParam "doc"
   =#> docResult "conditional doc"
   #? ("Conditionally includes the given `doc` unless it is " <>
       "followed by a blank space.")
 
 -- | Insert blank lines unless they exist already.
-blanklines :: HaskellFunction
-blanklines = toHsFnPrecursor Doc.blanklines
+blanklines :: LuaError e => DocumentedFunction e
+blanklines = defun "blanklines"
+  ### liftPure Doc.blanklines
   <#> intParam "n"
   =#> docResult "conditional blank lines"
   #? "Inserts blank lines unless they exist already."
 
 -- | Puts a @'Doc'@ in curly braces.
-braces :: HaskellFunction
-braces = toHsFnPrecursor Doc.braces
+braces :: LuaError e => DocumentedFunction e
+braces = defun "braces"
+  ### liftPure Doc.braces
   <#> docParam "doc"
   =#> docResult "doc enclosed by {}."
   #? "Puts the `doc` in curly braces."
 
 -- | Puts a @'Doc'@ in square brackets.
-brackets :: HaskellFunction -- Doc Text -> Lua (Doc Text)
-brackets = toHsFnPrecursor Doc.brackets
+brackets :: LuaError e => DocumentedFunction e -- Doc Text -> Lua (Doc Text)
+brackets = defun "brackets"
+  ### liftPure Doc.brackets
   <#> docParam "doc"
   =#> docResult "doc enclosed by []."
   #? "Puts the `doc` in square brackets"
 
 -- | Like @'lblock'@ but aligned centered.
-cblock :: HaskellFunction
-cblock = toHsFnPrecursor Doc.cblock
+cblock :: LuaError e => DocumentedFunction e
+cblock = defun "cblock"
+  ### liftPure2 Doc.cblock
   <#> parameter peekIntegral "integer" "width" "block width in chars"
   <#> docParam "doc"
   =#> docResult ("doc, aligned centered in a block with max" <>
@@ -339,38 +350,43 @@ cblock = toHsFnPrecursor Doc.cblock
       "aligned centered.")
 
 -- | Chomps trailing blank space off of a @'Doc'@.
-chomp :: HaskellFunction
-chomp = toHsFnPrecursor Doc.chomp
+chomp :: LuaError e => DocumentedFunction e
+chomp = defun "chomp"
+  ### liftPure Doc.chomp
   <#> docParam "doc"
   =#> docResult "`doc` without trailing blanks"
   #? "Chomps trailing blank space off of the `doc`."
 
 -- | Concatenates a list of @'Doc'@s.
-concat :: HaskellFunction
-concat = toHsFnPrecursor (\docs optSep -> mconcat $
-                           maybe docs (`intersperse` docs) optSep)
+concat :: LuaError e => DocumentedFunction e
+concat = defun "concat"
+  ### liftPure2 (\docs optSep -> mconcat $
+                  maybe docs (`intersperse` docs) optSep)
   <#> parameter (peekList peekDoc) "`{Doc,...}`" "docs" "list of Docs"
   <#> optionalParameter peekDoc "Doc" "sep" "separator"
   =#> docResult "concatenated doc"
   #? "Concatenates a list of `Doc`s."
 
 -- | Wraps a @'Doc'@ in double quotes
-double_quotes :: HaskellFunction
-double_quotes = toHsFnPrecursor Doc.doubleQuotes
+double_quotes :: LuaError e => DocumentedFunction e
+double_quotes = defun "double_quotes"
+  ### liftPure Doc.doubleQuotes
   <#> docParam "doc"
   =#> docResult "`doc` enclosed by `\"` chars"
   #? "Wraps a `Doc` in double quotes."
 
 -- | Makes a @'Doc'@ flush against the left margin.
-flush :: HaskellFunction
-flush = toHsFnPrecursor Doc.flush
+flush :: LuaError e => DocumentedFunction e
+flush = defun "flush"
+  ### liftPure Doc.flush
   <#> docParam "doc"
   =#> docResult "flushed `doc`"
   #? "Makes a `Doc` flush against the left margin."
 
 -- | Creates a hanging indent.
-hang :: HaskellFunction
-hang = toHsFnPrecursor Doc.hang
+hang :: LuaError e => DocumentedFunction e
+hang = defun "hang"
+  ### liftPure3 Doc.hang
   <#> parameter peekIntegral "integer" "ind" "indentation width"
   <#> docParam "start"
   <#> docParam "doc"
@@ -379,8 +395,9 @@ hang = toHsFnPrecursor Doc.hang
   #? "Creates a hanging indent."
 
 -- | Encloses a @'Doc'@ inside a start and end @'Doc'@.
-inside :: HaskellFunction
-inside = toHsFnPrecursor Doc.inside
+inside :: LuaError e => DocumentedFunction e
+inside = defun "inside"
+  ### liftPure3 Doc.inside
   <#> docParam "start"
   <#> docParam "end"
   <#> docParam "contents"
@@ -389,8 +406,9 @@ inside = toHsFnPrecursor Doc.inside
 
 -- | Creates a block with the given width and content, aligned to
 -- the left.
-lblock :: HaskellFunction
-lblock = toHsFnPrecursor Doc.lblock
+lblock :: LuaError e => DocumentedFunction e
+lblock = defun "lblock"
+  ### liftPure2 Doc.lblock
   <#> parameter peekIntegral "integer" "width" "block width in chars"
   <#> docParam "doc"
   =#> docResult "doc put into block with max `width` chars per line."
@@ -398,37 +416,42 @@ lblock = toHsFnPrecursor Doc.lblock
       "aligned to the left.")
 
 -- | Creates a @'Doc'@ from a string.
-literal :: HaskellFunction
-literal = toHsFnPrecursor Doc.literal
+literal :: LuaError e => DocumentedFunction e
+literal = defun "literal"
+  ### liftPure Doc.literal
   <#> textParam "string"
   =#> docResult "doc contatining just the literal string"
   #? "Creates a `Doc` from a string."
 
 -- | Indents a @'Doc'@ by the specified number of spaces.
-nest :: HaskellFunction
-nest = toHsFnPrecursor Doc.nest
+nest :: LuaError e => DocumentedFunction e
+nest = defun "nest"
+  ### liftPure2 Doc.nest
   <#> parameter peekIntegral "integer" "ind" "indentation size"
   <#> docParam "doc"
   =#> docResult "`doc` indented by `ind` spaces"
   #? "Indents a `Doc` by the specified number of spaces."
 
 -- | Removes leading blank lines from a @'Doc'@.
-nestle :: HaskellFunction
-nestle = toHsFnPrecursor Doc.nestle
+nestle :: LuaError e => DocumentedFunction e
+nestle = defun "nestle"
+  ### liftPure Doc.nestle
   <#> docParam "doc"
   =#> docResult "`doc` with leading blanks removed"
   #? "Removes leading blank lines from a `Doc`."
 
 -- | Makes a @'Doc'@ non-reflowable.
-nowrap :: HaskellFunction
-nowrap = toHsFnPrecursor Doc.nowrap
+nowrap :: LuaError e => DocumentedFunction e
+nowrap = defun "nowrap"
+  ### liftPure Doc.nowrap
   <#> docParam "doc"
   =#> docResult "same as input, but non-reflowable"
   #? "Makes a `Doc` non-reflowable."
 
 -- | Puts a @'Doc'@ in parentheses.
-parens :: HaskellFunction
-parens = toHsFnPrecursor Doc.parens
+parens :: LuaError e => DocumentedFunction e
+parens = defun "parens"
+  ### liftPure Doc.parens
   <#> docParam "doc"
   =#> docResult "doc enclosed by ()."
   #? "Puts the `doc` in parentheses."
@@ -437,8 +460,9 @@ parens = toHsFnPrecursor Doc.parens
 -- | Uses the specified string as a prefix for every line of the
 -- inside document (except the first, if not at the beginning of
 -- the line).
-prefixed :: HaskellFunction
-prefixed = toHsFnPrecursor Doc.prefixed
+prefixed :: LuaError e => DocumentedFunction e
+prefixed = defun "prefixed"
+  ### liftPure2 Doc.prefixed
   <#> parameter peekString "string" "prefix" "prefix for each line"
   <#> docParam "doc"
   =#> docResult "prefixed `doc`"
@@ -447,15 +471,17 @@ prefixed = toHsFnPrecursor Doc.prefixed
       "beginning of the line).")
 
 -- | Wraps a @'Doc'@ in single quotes.
-quotes :: HaskellFunction
-quotes = toHsFnPrecursor Doc.quotes
+quotes :: LuaError e => DocumentedFunction e
+quotes = defun "quotes"
+  ### liftPure Doc.quotes
   <#> docParam "doc"
   =#> docResult "doc enclosed in `'`."
   #? "Wraps a `Doc` in single quotes."
 
 -- | Like @'rblock'@ but aligned to the right.
-rblock :: HaskellFunction
-rblock = toHsFnPrecursor Doc.rblock
+rblock :: LuaError e => DocumentedFunction e
+rblock = defun "rblock"
+  ### liftPure2 Doc.rblock
   <#> parameter peekIntegral "integer" "width" "block width in chars"
   <#> docParam "doc"
   =#> docResult ("doc, right aligned in a block with max" <>
@@ -466,8 +492,9 @@ rblock = toHsFnPrecursor Doc.rblock
 -- | An expandable border that, when placed next to a box,
 -- expands to the height of the box.  Strings cycle through the
 -- list provided.
-vfill :: HaskellFunction
-vfill = toHsFnPrecursor Doc.vfill
+vfill :: LuaError e => DocumentedFunction e
+vfill = defun "vfill"
+  ### liftPure Doc.vfill
   <#> textParam "border"
   =#> docResult "automatically expanding border Doc"
   #? ("An expandable border that, when placed next to a box, " <>
@@ -478,82 +505,41 @@ vfill = toHsFnPrecursor Doc.vfill
 -- Marshaling
 --
 
--- | Name used for the @Doc@ Lua userdata values.
-docTypeName :: String
-docTypeName = "HsLua DocLayout.Doc"
-
 -- | Retrieve a @Doc Text@ value from the Lua stack. Strings are
 -- converted to plain @'Doc'@ values.
-peekDoc' :: StackIndex -> Lua (Doc Text)
-peekDoc' idx = Lua.ltype idx >>= \case
+peekDoc :: LuaError e => Peeker e (Doc Text)
+peekDoc idx = liftLua (Lua.ltype idx) >>= \case
   Lua.TypeString   -> let stringToDoc s = if T.null s
                                           then Doc.empty
                                           else Doc.literal s
-                      in stringToDoc <$> Lua.peek idx
-  Lua.TypeNumber   -> Doc.literal <$> Lua.peek idx
-  _                -> Lua.reportValueOnFailure docTypeName
-                        (`Lua.toAnyWithName` docTypeName)
-                        idx
-
-peekDoc :: Peeker (Doc Text)
-peekDoc = toPeeker peekDoc'
-
-instance Peekable (Doc Text) where
-  peek = peekDoc'
+                      in stringToDoc <$> Lua.peekText idx
+  Lua.TypeNumber   -> Doc.literal <$> Lua.peekText idx
+  _                -> peekUD typeDoc idx
 
 -- | Push a @Doc Text@ value to the Lua stack.
-pushDoc :: Pusher (Doc Text)
-pushDoc = Lua.pushAnyWithMetatable pushDocMT
-  where
-    pushDocMT = Lua.ensureUserdataMetatable docTypeName $ do
-      Lua.addfunction "__add"      __add
-      Lua.addfunction "__concat"   __concat
-      Lua.addfunction "__div"      __div
-      Lua.addfunction "__eq"       __eq
-      Lua.addfunction "__idiv"     __idiv
-      Lua.addfunction "__tostring" __tostring
+pushDoc :: LuaError e => Pusher e (Doc Text)
+pushDoc = pushUD typeDoc
+
+instance Peekable (Doc Text) where
+  peek = forcePeek . peekDoc
 
 instance Pushable (Doc Text) where
   push = pushDoc
-
--- | Concatenate two @'Doc'@s, putting breakable spaces between them.
-__add :: Doc Text -> Doc Text -> Lua (Doc Text)
-__add a b = return (a <+> b)
-
--- | Concatenate two @'Doc'@.
-__concat :: Doc Text -> Doc Text -> Lua (Doc Text)
-__concat a b = return (a <> b)
-
--- | @a / b@ puts @a@ above @b@.
-__div :: Doc Text -> Doc Text -> Lua (Doc Text)
-__div a b = return (a $$ b)
-
--- | Test @'Doc'@ equality.
-__eq :: Doc Text -> Doc Text -> Lua Bool
-__eq a b = return (a == b)
-
--- | @a // b@ puts @a@ above @b@.
-__idiv :: Doc Text -> Doc Text -> Lua (Doc Text)
-__idiv a b = return (a $+$ b)
-
--- | Convert to string by rendering without reflowing.
-__tostring :: Doc Text -> Lua Text
-__tostring d = return $ Doc.render Nothing d
 
 --
 -- Parameters
 --
 
 -- | @Doc@ typed function parameter.
-docParam :: Text -> Parameter (Doc Text)
+docParam :: LuaError e => Text -> Parameter e (Doc Text)
 docParam name = parameter peekDoc "Doc" name ""
 
 -- | @Int@ typed function parameter.
-intParam :: Text -> Parameter Int
+intParam :: Text -> Parameter e Int
 intParam name = parameter (peekIntegral @Int) "integer "name ""
 
 -- | @Text@ typed function parameter.
-textParam :: Text -> Parameter Text
+textParam :: Text -> Parameter e Text
 textParam name = parameter peekText "string" name ""
 
 --
@@ -562,16 +548,21 @@ textParam name = parameter peekText "string" name ""
 
 -- | Boolean function result.
 booleanResult :: Text -- ^ Description
-              -> FunctionResults Bool
+              -> FunctionResults e Bool
 booleanResult = functionResult pushBool "boolean"
 
 -- | Function result of type @'Doc'@.
-docResult :: Text -- ^ Description
-          -> FunctionResults (Doc Text)
+docResult :: LuaError e
+          => Text -- ^ Description
+          -> FunctionResults e (Doc Text)
 docResult = functionResult pushDoc "Doc"
 
 -- | Function result of type @'Int'@.
 intResult :: Text -- ^ Description
-          -> FunctionResults Int
+          -> FunctionResults e Int
 intResult = functionResult (pushIntegral @Int) "integer"
 
+-- | Function result of type @'Text'@.
+textResult :: Text -- ^ Description
+           -> FunctionResults e Text
+textResult = functionResult pushText "text"
