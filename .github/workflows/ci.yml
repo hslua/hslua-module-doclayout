@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'stack.yaml'
-      - '.travis.yml'
 
 jobs:
   build:
