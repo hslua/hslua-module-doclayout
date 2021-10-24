@@ -1,4 +1,10 @@
-resolver: lts-16.12
+resolver: lts-18.13
 extra-deps:
-  - hslua-1.2.0
-  - tasty-lua-0.2.3
+  - hslua-2.0.0
+  - hslua-classes-2.0.0
+  - hslua-core-2.0.0
+  - hslua-marshalling-2.0.0
+  - hslua-objectorientation-2.0.0
+  - hslua-packaging-2.0.0
+  - lua-2.0.0
+  - tasty-lua-1.0.0
