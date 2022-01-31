@@ -72,7 +72,7 @@ where
 import Prelude hiding (concat)
 import Data.List (intersperse)
 import Data.Text (Text)
-import HsLua as Lua hiding (concat, render)
+import HsLua as Lua hiding (concat)
 import Text.DocLayout (Doc, (<+>), ($$), ($+$))
 
 import qualified Data.Text as T
@@ -198,7 +198,7 @@ typeDoc = deftype "Doc"
         ### liftPure2 (==)
         <#> docParam "a"
         <#> docParam "b"
-        =#> booleanResult "whether the two Docs are equal"
+        =#> boolResult "whether the two Docs are equal"
       , operation Idiv   $ binaryOp ($+$) "Puts a above b"
       , operation Tostring $ lambda
         ### liftPure (Doc.render Nothing)
@@ -220,7 +220,7 @@ render :: LuaError e => DocumentedFunction e
 render = defun "render"
   ### liftPure2 (flip Doc.render)
   <#> docParam "doc"
-  <#> optionalParameter (peekIntegral @Int) "integer" "colwidth" ""
+  <#> opt (integralParam "colwidth" "")
   =#> functionResult pushText "Doc" "rendered doc"
   #? ("Render a @'Doc'@. The text is reflowed on breakable spaces" <>
       "to match the given line length. Text is not reflowed if the" <>
@@ -235,7 +235,7 @@ is_empty :: LuaError e => DocumentedFunction e
 is_empty = defun "is_empty"
   ### liftPure Doc.isEmpty
   <#> docParam "doc"
-  =#> booleanResult "`true` iff `doc` is the empty document, `false` otherwise."
+  =#> boolResult "`true` iff `doc` is the empty document, `false` otherwise."
   #? "Checks whether a doc is empty."
 
 -- | Returns the width of a @'Doc'@.
@@ -243,7 +243,7 @@ offset :: LuaError e => DocumentedFunction e
 offset = defun "offset"
   ### liftPure Doc.offset
   <#> docParam "doc"
-  =#> intResult "doc width"
+  =#> integralResult "doc width"
   #? "Returns the width of a `Doc` as number of characters."
 
 -- | Returns the minimal width of a @'Doc'@ when reflowed at
@@ -252,7 +252,7 @@ min_offset :: LuaError e => DocumentedFunction e
 min_offset = defun "min_offset"
   ### liftPure Doc.minOffset
   <#> docParam "doc"
-  =#> intResult "minimal possible width"
+  =#> integralResult "minimal possible width"
   #? ("Returns the minimal width of a `Doc` when reflowed at " <>
       "breakable spaces.")
 
@@ -262,8 +262,8 @@ update_column :: LuaError e => DocumentedFunction e
 update_column = defun "update_column"
   ### liftPure2 Doc.updateColumn
   <#> docParam "doc"
-  <#> intParam "i"
-  =#> intResult "column number"
+  <#> integralParam "i" ""
+  =#> integralResult "column number"
   #? ("Returns the column that would be occupied by the last " <>
       "laid out character.")
 
@@ -272,7 +272,7 @@ height :: LuaError e => DocumentedFunction e
 height = defun "height"
   ### liftPure Doc.height
   <#> docParam "doc"
-  =#> intResult "doc height"
+  =#> integralResult "doc height"
   #? "Returns the height of a block or other Doc."
 
 
@@ -282,8 +282,8 @@ height = defun "height"
 real_length :: DocumentedFunction e
 real_length = defun "real_length"
   ### liftPure Doc.realLength
-  <#> textParam "str"
-  =#> intResult "text length"
+  <#> textParam "str" ""
+  =#> integralResult "text length"
   #? ("Returns the real length of a string in a monospace font: " <>
       "0 for a combining chaeracter, 1 for a regular character, " <>
       "2 for an East Asian wide character.")
@@ -297,7 +297,7 @@ real_length = defun "real_length"
 after_break :: LuaError e => DocumentedFunction e
 after_break = defun "after_break"
   ### liftPure Doc.afterBreak
-  <#> textParam "text"
+  <#> textParam "text" ""
   =#> docResult "new doc"
   #? ("Creates a `Doc` which is conditionally included only if it" <>
       "comes at the beginning of a line.")
@@ -316,7 +316,7 @@ before_non_blank = defun "before_non_blank"
 blanklines :: LuaError e => DocumentedFunction e
 blanklines = defun "blanklines"
   ### liftPure Doc.blanklines
-  <#> intParam "n"
+  <#> integralParam "n" ""
   =#> docResult "conditional blank lines"
   #? "Inserts blank lines unless they exist already."
 
@@ -361,7 +361,7 @@ concat = defun "concat"
   ### liftPure2 (\docs optSep -> mconcat $
                   maybe docs (`intersperse` docs) optSep)
   <#> parameter (peekList peekDoc) "`{Doc,...}`" "docs" "list of Docs"
-  <#> optionalParameter peekDoc "Doc" "sep" "separator"
+  <#> opt (parameter peekDoc "Doc" "sep" "separator")
   =#> docResult "concatenated doc"
   #? "Concatenates a list of `Doc`s."
 
@@ -417,7 +417,7 @@ lblock = defun "lblock"
 literal :: LuaError e => DocumentedFunction e
 literal = defun "literal"
   ### liftPure Doc.literal
-  <#> textParam "string"
+  <#> textParam "string" ""
   =#> docResult "doc contatining just the literal string"
   #? "Creates a `Doc` from a string."
 
@@ -493,7 +493,7 @@ rblock = defun "rblock"
 vfill :: LuaError e => DocumentedFunction e
 vfill = defun "vfill"
   ### liftPure Doc.vfill
-  <#> textParam "border"
+  <#> textParam "border" ""
   =#> docResult "automatically expanding border Doc"
   #? ("An expandable border that, when placed next to a box, " <>
       "expands to the height of the box.  Strings cycle through the " <>
@@ -519,7 +519,7 @@ pushDoc :: LuaError e => Pusher e (Doc Text)
 pushDoc = pushUD typeDoc
 
 instance Peekable (Doc Text) where
-  peek = forcePeek . peekDoc
+  safepeek = peekDoc
 
 instance Pushable (Doc Text) where
   push = pushDoc
@@ -532,35 +532,12 @@ instance Pushable (Doc Text) where
 docParam :: LuaError e => Text -> Parameter e (Doc Text)
 docParam name = parameter peekDoc "Doc" name ""
 
--- | @Int@ typed function parameter.
-intParam :: Text -> Parameter e Int
-intParam name = parameter (peekIntegral @Int) "integer "name ""
-
--- | @Text@ typed function parameter.
-textParam :: Text -> Parameter e Text
-textParam name = parameter peekText "string" name ""
-
 --
 -- Results
 --
-
--- | Boolean function result.
-booleanResult :: Text -- ^ Description
-              -> FunctionResults e Bool
-booleanResult = functionResult pushBool "boolean"
 
 -- | Function result of type @'Doc'@.
 docResult :: LuaError e
           => Text -- ^ Description
           -> FunctionResults e (Doc Text)
 docResult = functionResult pushDoc "Doc"
-
--- | Function result of type @'Int'@.
-intResult :: Text -- ^ Description
-          -> FunctionResults e Int
-intResult = functionResult (pushIntegral @Int) "integer"
-
--- | Function result of type @'Text'@.
-textResult :: Text -- ^ Description
-           -> FunctionResults e Text
-textResult = functionResult pushText "text"
