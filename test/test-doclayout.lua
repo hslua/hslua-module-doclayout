@@ -50,7 +50,7 @@ return {
       test('inside', function ()
         local doc = doclayout.literal 'Hello,' + 'World!'
         assert.are_equal(
-          doclayout.inside('Yo! ', ' Wassup?', doc),
+          doclayout.inside(doc, 'Yo! ', ' Wassup?'),
           'Yo! ' .. doc .. ' Wassup?'
         )
       end),
@@ -120,11 +120,11 @@ return {
       assert.are_equal(doclayout.render(doc), '[1]')
     end),
     test('flush', function ()
-      local doc = doclayout.flush(doclayout.nest(2, 'hi'))
+      local doc = doclayout.flush(doclayout.nest('hi', 2))
       assert.are_equal(doclayout.render(doc), 'hi')
     end),
     test('hang', function ()
-      local doc = doclayout.hang(4, '  - ', 'aa\nbb\ncc')
+      local doc = doclayout.hang('aa\nbb\ncc', 4, '  - ')
       assert.are_equal(
         doclayout.render(doc),
         table.concat{
@@ -135,7 +135,7 @@ return {
       )
     end),
     test('nest', function ()
-      local doc = doclayout.nest(2, 'aa\n\nbb\ncc')
+      local doc = doclayout.nest('aa\n\nbb\ncc', 2)
       assert.are_equal(
         doclayout.render(doc),
         table.concat{
@@ -155,31 +155,31 @@ return {
       assert.are_equal(doclayout.render(doc), '(lisp)')
     end),
     test('prefixed', function ()
-      local doc = doclayout.prefixed('# ', doclayout.literal 'aa' // 'bb')
+      local doc = doclayout.prefixed(doclayout.literal 'aa' // 'bb', '# ' )
       assert.are_equal(doclayout.render(doc), '# aa\n#\n# bb')
     end),
     group 'table helpers' {
       test('cblock', function ()
-        local doc = doclayout.cblock(2, '| ')
-          .. doclayout.cblock(4, 'aa')
-          .. doclayout.cblock(2, ' |')
+        local doc = doclayout.cblock('| ', 2)
+          .. doclayout.cblock('aa', 4)
+          .. doclayout.cblock(' |', 2)
         assert.are_equal(doclayout.render(doc), '|  aa  |')
       end),
       test('lblock', function ()
-        local doc = doclayout.lblock(2, '| ')
-          .. doclayout.lblock(4, 'aa')
-          .. doclayout.lblock(2, ' |')
+        local doc = doclayout.lblock('| ', 2)
+          .. doclayout.lblock('aa', 4)
+          .. doclayout.lblock(' |', 2)
         assert.are_equal(doclayout.render(doc), '| aa   |')
       end),
       test('rblock', function ()
-        local doc = doclayout.rblock(2, '| ')
-          .. doclayout.rblock(4, 'aa')
-          .. doclayout.rblock(2, ' |')
+        local doc = doclayout.rblock('| ', 2)
+          .. doclayout.rblock('aa', 4)
+          .. doclayout.rblock(' |', 2)
         assert.are_equal(doclayout.render(doc), '|   aa |')
       end),
       test('vfill', function ()
         local doc = doclayout.vfill '| '
-          .. doclayout.lblock(4, doclayout.literal 'aa' // 'bbb')
+          .. doclayout.lblock(doclayout.literal 'aa' // 'bbb', 4)
           .. doclayout.vfill(' |')
         assert.are_equal(
           doclayout.render(doc),

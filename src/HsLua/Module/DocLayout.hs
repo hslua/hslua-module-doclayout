@@ -355,9 +355,9 @@ brackets = defun "brackets"
 -- | Like @'lblock'@ but aligned centered.
 cblock :: LuaError e => DocumentedFunction e
 cblock = defun "cblock"
-  ### liftPure2 Doc.cblock
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  ### liftPure2 (flip Doc.cblock)
   <#> docParam "doc"
+  <#> parameter peekIntegral "integer" "width" "block width in chars"
   =#> docResult ("doc, aligned centered in a block with max" <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
@@ -377,7 +377,7 @@ concat = defun "concat"
   ### liftPure2 (\docs optSep -> mconcat $
                   maybe docs (`intersperse` docs) optSep)
   <#> parameter (peekList peekDoc) "`{Doc,...}`" "docs" "list of Docs"
-  <#> opt (parameter peekDoc "Doc" "sep" "separator")
+  <#> opt (parameter peekDoc "Doc" "sep" "separator (default: none)")
   =#> docResult "concatenated doc"
   #? "Concatenates a list of `Doc`s."
 
@@ -400,10 +400,10 @@ flush = defun "flush"
 -- | Creates a hanging indent.
 hang :: LuaError e => DocumentedFunction e
 hang = defun "hang"
-  ### liftPure3 Doc.hang
+  ### liftPure3 (\doc ind start -> Doc.hang ind start doc)
+  <#> docParam "doc"
   <#> parameter peekIntegral "integer" "ind" "indentation width"
   <#> docParam "start"
-  <#> docParam "doc"
   =#> docResult ("`doc` prefixed by `start` on the first line, " <>
                  "subsequent lines indented by `ind` spaces.")
   #? "Creates a hanging indent."
@@ -411,10 +411,10 @@ hang = defun "hang"
 -- | Encloses a @'Doc'@ inside a start and end @'Doc'@.
 inside :: LuaError e => DocumentedFunction e
 inside = defun "inside"
-  ### liftPure3 Doc.inside
+  ### liftPure3 (\contents start end -> Doc.inside start end contents)
+  <#> docParam "contents"
   <#> docParam "start"
   <#> docParam "end"
-  <#> docParam "contents"
   =#> docResult "enclosed contents"
   #? "Encloses a `Doc` inside a start and end `Doc`."
 
@@ -422,9 +422,9 @@ inside = defun "inside"
 -- the left.
 lblock :: LuaError e => DocumentedFunction e
 lblock = defun "lblock"
-  ### liftPure2 Doc.lblock
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  ### liftPure2 (flip Doc.lblock)
   <#> docParam "doc"
+  <#> parameter peekIntegral "integer" "width" "block width in chars"
   =#> docResult "doc put into block with max `width` chars per line."
   #? ("Creates a block with the given width and content, " <>
       "aligned to the left.")
@@ -440,9 +440,9 @@ literal = defun "literal"
 -- | Indents a @'Doc'@ by the specified number of spaces.
 nest :: LuaError e => DocumentedFunction e
 nest = defun "nest"
-  ### liftPure2 Doc.nest
-  <#> parameter peekIntegral "integer" "ind" "indentation size"
+  ### liftPure2 (flip Doc.nest)
   <#> docParam "doc"
+  <#> parameter peekIntegral "integer" "ind" "indentation size"
   =#> docResult "`doc` indented by `ind` spaces"
   #? "Indents a `Doc` by the specified number of spaces."
 
@@ -476,9 +476,9 @@ parens = defun "parens"
 -- the line).
 prefixed :: LuaError e => DocumentedFunction e
 prefixed = defun "prefixed"
-  ### liftPure2 Doc.prefixed
-  <#> parameter peekString "string" "prefix" "prefix for each line"
+  ### liftPure2 (flip Doc.prefixed)
   <#> docParam "doc"
+  <#> parameter peekString "string" "prefix" "prefix for each line"
   =#> docResult "prefixed `doc`"
   #? ("Uses the specified string as a prefix for every line of " <>
       "the inside document (except the first, if not at the " <>
@@ -495,9 +495,9 @@ quotes = defun "quotes"
 -- | Like @'rblock'@ but aligned to the right.
 rblock :: LuaError e => DocumentedFunction e
 rblock = defun "rblock"
-  ### liftPure2 Doc.rblock
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  ### liftPure2 (flip Doc.rblock)
   <#> docParam "doc"
+  <#> parameter peekIntegral "integer" "width" "block width in chars"
   =#> docResult ("doc, right aligned in a block with max" <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
