@@ -205,7 +205,23 @@ typeDoc = deftype "Doc"
         <#> docParam "doc"
         =#> textResult "Rendered Doc without reflowing."
       ]
-      []
+      [ method before_non_blank
+      , method braces
+      , method brackets
+      , method chomp
+      , method double_quotes
+      , method is_empty
+      , method flush
+      , method height
+      , method min_offset
+      , method nestle
+      , method nowrap
+      , method offset
+      , method parens
+      , method quotes
+      , method update_column
+      , method vfill
+      ]
   where
     binaryOp op descr = lambda
       ### liftPure2 op
