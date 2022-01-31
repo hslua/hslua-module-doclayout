@@ -208,17 +208,25 @@ typeDoc = deftype "Doc"
       [ method before_non_blank
       , method braces
       , method brackets
+      , method cblock
       , method chomp
       , method double_quotes
       , method is_empty
       , method flush
+      , method hang
       , method height
+      , method inside
+      , method lblock
       , method min_offset
+      , method nest
       , method nestle
       , method nowrap
       , method offset
       , method parens
+      , method prefixed
       , method quotes
+      , method rblock
+      , method render
       , method update_column
       , method vfill
       ]

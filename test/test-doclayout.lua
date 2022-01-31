@@ -87,7 +87,7 @@ return {
         .. doclayout.literal 'How' .. doclayout.space
         .. doclayout.literal 'are' .. doclayout.space
         .. doclayout.literal 'you?'
-      assert.are_equal(doclayout.render(greeting, 7), 'Hi! How\nare\nyou?')
+      assert.are_equal(greeting:render(7), 'Hi! How\nare\nyou?')
     end),
     test('after_break', function ()
       local doc = doclayout.literal 'hi'
@@ -95,7 +95,7 @@ return {
         .. doclayout.after_break '?'
         .. doclayout.literal 'x'
         .. doclayout.after_break '?'
-      assert.are_equal(doclayout.render(doc, 2), 'hi\n!x')
+      assert.are_equal(doc:render(2), 'hi\n!x')
     end),
     test('before_non_blank', function ()
       local doc = doclayout.before_non_blank '!!' .. ' ab'
@@ -148,15 +148,22 @@ return {
     end),
     test('nowrap', function()
       local doc = doclayout.nowrap(doclayout.literal 'first' + 'second')
-      assert.are_equal(doclayout.render(doc, 8), 'first second')
+      assert.are_equal(doc:render(8), 'first second')
     end),
     test('parens', function ()
       local doc = doclayout.parens 'lisp'
       assert.are_equal(doclayout.render(doc), '(lisp)')
+      -- as method
+      assert.are_equal(doc:parens():render(), '((lisp))')
     end),
     test('prefixed', function ()
       local doc = doclayout.prefixed(doclayout.literal 'aa' // 'bb', '# ' )
       assert.are_equal(doclayout.render(doc), '# aa\n#\n# bb')
+      -- as method
+      assert.are_equal(
+        (doclayout.literal'aa' // 'bb'):prefixed('# '):render(),
+        '# aa\n#\n# bb'
+      )
     end),
     group 'table helpers' {
       test('cblock', function ()
