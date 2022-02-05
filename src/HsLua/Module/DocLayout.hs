@@ -554,7 +554,7 @@ instance Pushable (Doc Text) where
 
 -- | @Doc@ typed function parameter.
 docParam :: LuaError e => Text -> Parameter e (Doc Text)
-docParam name = parameter peekDoc "Doc" name ""
+docParam name = parameter peekDoc "Doc" name "document"
 
 --
 -- Results
