@@ -232,6 +232,7 @@ return {
       assert.are_equal(doclayout.real_length('a'), 1)
       assert.are_equal(doclayout.real_length('❄'), 1)
       assert.are_equal(doclayout.real_length('シ'), 2)
+      assert.are_equal(doclayout.real_length('four'), 4)
     end),
 
     test('update_column', function ()

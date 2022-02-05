@@ -244,7 +244,7 @@ render :: LuaError e => DocumentedFunction e
 render = defun "render"
   ### liftPure2 (flip Doc.render)
   <#> docParam "doc"
-  <#> opt (integralParam "colwidth" "")
+  <#> opt (integralParam "colwidth" "planned maximum line length")
   =#> functionResult pushText "Doc" "rendered doc"
   #? ("Render a @'Doc'@. The text is reflowed on breakable spaces" <>
       "to match the given line length. Text is not reflowed if the" <>
@@ -286,7 +286,7 @@ update_column :: LuaError e => DocumentedFunction e
 update_column = defun "update_column"
   ### liftPure2 Doc.updateColumn
   <#> docParam "doc"
-  <#> integralParam "i" ""
+  <#> integralParam "i" "start column"
   =#> integralResult "column number"
   #? ("Returns the column that would be occupied by the last " <>
       "laid out character.")
@@ -306,7 +306,7 @@ height = defun "height"
 real_length :: DocumentedFunction e
 real_length = defun "real_length"
   ### liftPure Doc.realLength
-  <#> textParam "str" ""
+  <#> textParam "str" "UTF-8 string to measure"
   =#> integralResult "text length"
   #? ("Returns the real length of a string in a monospace font: " <>
       "0 for a combining chaeracter, 1 for a regular character, " <>
@@ -321,10 +321,12 @@ real_length = defun "real_length"
 after_break :: LuaError e => DocumentedFunction e
 after_break = defun "after_break"
   ### liftPure Doc.afterBreak
-  <#> textParam "text" ""
+  <#> textParam "text" "content to include when placed after a break"
   =#> docResult "new doc"
-  #? ("Creates a `Doc` which is conditionally included only if it" <>
-      "comes at the beginning of a line.")
+  #? ("Creates a `Doc` which is conditionally included only if it " <>
+      "comes at the beginning of a line.\n\n" <>
+      "An example where this is useful is for escaping line-initial " <>
+      "`.` in roff man.")
 
 -- | Conditionally includes the given @'Doc'@ unless it is
 -- followed by a blank space.
@@ -340,7 +342,7 @@ before_non_blank = defun "before_non_blank"
 blanklines :: LuaError e => DocumentedFunction e
 blanklines = defun "blanklines"
   ### liftPure Doc.blanklines
-  <#> integralParam "n" ""
+  <#> integralParam "n" "number of blank lines"
   =#> docResult "conditional blank lines"
   #? "Inserts blank lines unless they exist already."
 
@@ -365,7 +367,7 @@ cblock :: LuaError e => DocumentedFunction e
 cblock = defun "cblock"
   ### liftPure2 (flip Doc.cblock)
   <#> docParam "doc"
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  <#> integralParam "width" "block width in chars"
   =#> docResult ("doc, aligned centered in a block with max" <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
@@ -410,7 +412,7 @@ hang :: LuaError e => DocumentedFunction e
 hang = defun "hang"
   ### liftPure3 (\doc ind start -> Doc.hang ind start doc)
   <#> docParam "doc"
-  <#> parameter peekIntegral "integer" "ind" "indentation width"
+  <#> integralParam "ind" "indentation width"
   <#> docParam "start"
   =#> docResult ("`doc` prefixed by `start` on the first line, " <>
                  "subsequent lines indented by `ind` spaces.")
@@ -432,7 +434,7 @@ lblock :: LuaError e => DocumentedFunction e
 lblock = defun "lblock"
   ### liftPure2 (flip Doc.lblock)
   <#> docParam "doc"
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  <#> integralParam "width" "block width in chars"
   =#> docResult "doc put into block with max `width` chars per line."
   #? ("Creates a block with the given width and content, " <>
       "aligned to the left.")
@@ -441,7 +443,7 @@ lblock = defun "lblock"
 literal :: LuaError e => DocumentedFunction e
 literal = defun "literal"
   ### liftPure Doc.literal
-  <#> textParam "string" ""
+  <#> textParam "text" "literal value"
   =#> docResult "doc contatining just the literal string"
   #? "Creates a `Doc` from a string."
 
@@ -450,7 +452,7 @@ nest :: LuaError e => DocumentedFunction e
 nest = defun "nest"
   ### liftPure2 (flip Doc.nest)
   <#> docParam "doc"
-  <#> parameter peekIntegral "integer" "ind" "indentation size"
+  <#> integralParam "ind" "indentation size"
   =#> docResult "`doc` indented by `ind` spaces"
   #? "Indents a `Doc` by the specified number of spaces."
 
@@ -486,7 +488,7 @@ prefixed :: LuaError e => DocumentedFunction e
 prefixed = defun "prefixed"
   ### liftPure2 (flip Doc.prefixed)
   <#> docParam "doc"
-  <#> parameter peekString "string" "prefix" "prefix for each line"
+  <#> stringParam "prefix" "prefix for each line"
   =#> docResult "prefixed `doc`"
   #? ("Uses the specified string as a prefix for every line of " <>
       "the inside document (except the first, if not at the " <>
@@ -505,7 +507,7 @@ rblock :: LuaError e => DocumentedFunction e
 rblock = defun "rblock"
   ### liftPure2 (flip Doc.rblock)
   <#> docParam "doc"
-  <#> parameter peekIntegral "integer" "width" "block width in chars"
+  <#> integralParam "width" "block width in chars"
   =#> docResult ("doc, right aligned in a block with max" <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
@@ -517,7 +519,7 @@ rblock = defun "rblock"
 vfill :: LuaError e => DocumentedFunction e
 vfill = defun "vfill"
   ### liftPure Doc.vfill
-  <#> textParam "border" ""
+  <#> textParam "border" "vertically expanded characters"
   =#> docResult "automatically expanding border Doc"
   #? ("An expandable border that, when placed next to a box, " <>
       "expands to the height of the box.  Strings cycle through the " <>
