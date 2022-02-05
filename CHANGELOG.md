@@ -3,6 +3,16 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.0.2
+
+Released 2022-02-05.
+
+-   Modify functions, ensuring that the main document is always
+    the first argument. This allows convenient use of these
+    functions as methods.
+
+-   Improved documentation.
+
 ## 1.0.1
 
 Released 2022-01-31.
