@@ -3,9 +3,18 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.0.1
+
+Released 2022-01-31.
+
+-   Updated to hslua-2.1.
+
+-   Functions that take a `Doc` as the first argument are added as
+    methods to `Doc` values.
+
 ## 1.0.0
 
-Released 2021-10-24
+Released 2021-10-24.
 
 * Upgraded to hslua-2.0.
 * Switched module name from `Foreign.Lua.Module.DocLayout` to
