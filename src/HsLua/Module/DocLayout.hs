@@ -44,6 +44,7 @@ module HsLua.Module.DocLayout (
   , literal
   , nest
   , nestle
+  , nontext
   , nowrap
   , parens
   , prefixed
@@ -171,6 +172,7 @@ functions =
   , literal
   , nest
   , nestle
+  , nontext
   , nowrap
   , parens
   , prefixed
@@ -444,7 +446,7 @@ literal :: LuaError e => DocumentedFunction e
 literal = defun "literal"
   ### liftPure Doc.literal
   <#> textParam "text" "literal value"
-  =#> docResult "doc contatining just the literal string"
+  =#> docResult "doc containing just the literal string"
   #? "Creates a `Doc` from a string."
 
 -- | Indents a @'Doc'@ by the specified number of spaces.
@@ -463,6 +465,23 @@ nestle = defun "nestle"
   <#> docParam "doc"
   =#> docResult "`doc` with leading blanks removed"
   #? "Removes leading blank lines from a `Doc`."
+
+-- | Create a @Doc@ value that contains in-band formatting commands or
+-- similar information. The width of such commands can be specified
+-- explicitly.
+nontext :: LuaError e => DocumentedFunction e
+nontext = defun "nontext"
+  ### (liftPure2 $ \text -> \case
+          Nothing    -> Doc.Text 0 text
+          Just width -> Doc.Text width text)
+  <#> textParam "str" "non-textual string"
+  <#> opt (integralParam "width" "effective width; defaults to 0")
+  =#> docResult "The literal string, treated as having the given width."
+  #? T.unlines
+     [ "Creates a `Doc` value that contains the raw string and behaves as"
+     , "if it had the specified width. A typical use-case are in-band"
+     , "formatting commands."
+     ]
 
 -- | Makes a @'Doc'@ non-reflowable.
 nowrap :: LuaError e => DocumentedFunction e

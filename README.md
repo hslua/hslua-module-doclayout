@@ -239,6 +239,22 @@ Parameters:
 
 Removes leading blank lines from a `Doc`.
 
+#### nontext
+
+`nontext (str[, width])`
+
+Parameters:
+
+`str`
+:   non-textual string
+
+`width`
+:   effective width; defaults to 0
+
+Creates a `Doc` value that contains the raw string and behaves as
+if it had the specified width. A typical use-case are in-band
+formatting commands.
+
 #### nowrap
 
 `nowrap (doc)`
