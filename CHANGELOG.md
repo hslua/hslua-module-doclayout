@@ -3,6 +3,17 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.1.0
+
+Release pending.
+
+-   Require hslua-2.3 and tasty-lua-1.1.
+
+-   Type info is added to all fields.
+
+-   The `Doc` type is now associated with this module's docs,
+    making it easier to generate documentation.
+
 ## 1.0.4
 
 Released 2022-04-03.
