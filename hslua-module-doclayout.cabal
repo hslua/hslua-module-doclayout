@@ -30,7 +30,7 @@ source-repository head
 common common-options
   build-depends:       base              >= 4.11   && < 5
                      , doclayout         >= 0.2    && < 0.5
-                     , hslua             >= 2.1    && < 2.3
+                     , hslua             >= 2.3    && < 2.4
                      , text              >= 1.2    && < 2.1
 
   default-language:    Haskell2010
@@ -64,7 +64,7 @@ test-suite hslua-module-doclayout-test
   build-depends:       hslua-module-doclayout
                      , tasty
                      , tasty-hunit
-                     , tasty-lua               >= 1.0 && < 1.1
+                     , tasty-lua               >= 1.1 && < 1.2
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             test-hslua-module-doclayout.hs

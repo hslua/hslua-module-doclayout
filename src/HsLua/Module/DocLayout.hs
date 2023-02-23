@@ -1,8 +1,8 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE LambdaCase           #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeApplications     #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : HsLua.Module.DocLayout
@@ -78,10 +78,6 @@ import Text.DocLayout (Doc, (<+>), ($$), ($+$))
 import qualified Data.Text as T
 import qualified Text.DocLayout as Doc
 
-#if ! MIN_VERSION_base(4, 11, 0)
-import Data.Monoid ((<>))
-#endif
-
 --
 -- Module
 --
@@ -98,6 +94,7 @@ documentedModule = Module
   , moduleDescription = description
   , moduleFunctions = functions
   , moduleOperations = []
+  , moduleTypeInitializers = [initType typeDoc]
   }
 
 --
@@ -105,7 +102,7 @@ documentedModule = Module
 --
 
 -- | Exposed fields.
-fields :: LuaError e => [Field e]
+fields :: forall e. LuaError e => [Field e]
 fields =
   [ blankline
   , cr
@@ -114,36 +111,40 @@ fields =
   ]
 
 -- | Wrapped and documented 'Doc.blankline' value.
-blankline :: LuaError e => Field e
+blankline :: forall e. LuaError e => Field e
 blankline = Field
   { fieldName = "blankline"
   , fieldDescription = "Inserts a blank line unless one exists already."
+  , fieldType = udTypeSpec @e typeDoc
   , fieldPushValue = pushDoc Doc.blankline
   }
 
 -- | Wrapped and documented 'Doc.cr' value.
-cr :: LuaError e => Field e
+cr :: forall e. LuaError e => Field e
 cr = Field
   { fieldName = "cr"
   , fieldDescription = "A carriage return. Does nothing if we're at " <>
                        "the beginning of a line; " <>
                        "otherwise inserts a newline."
+  , fieldType = udTypeSpec @e typeDoc
   , fieldPushValue = pushDoc Doc.cr
   }
 
 -- | Wrapped and documented 'Doc.empty' value.
-empty :: LuaError e => Field e
+empty :: forall e. LuaError e => Field e
 empty = Field
   { fieldName = "empty"
   , fieldDescription = "The empty document."
+  , fieldType = udTypeSpec @e typeDoc
   , fieldPushValue = pushDoc Doc.empty
   }
 
 -- | Wrapped and documented 'Doc.space' value.
-space :: LuaError e => Field e
+space :: forall e. LuaError e => Field e
 space = Field
   { fieldName = "space"
   , fieldDescription = "A breaking (reflowable) space."
+  , fieldType = udTypeSpec @e typeDoc
   , fieldPushValue = pushDoc Doc.space
   }
 
