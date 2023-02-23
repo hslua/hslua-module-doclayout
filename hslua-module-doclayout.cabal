@@ -15,9 +15,7 @@ build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
 extra-source-files:  test/test-doclayout.lua
-tested-with:         GHC == 8.0.2
-                   , GHC == 8.2.2
-                   , GHC == 8.4.4
+tested-with:         GHC == 8.4.4
                    , GHC == 8.6.5
                    , GHC == 8.8.4
                    , GHC == 8.10.7
@@ -29,7 +27,7 @@ source-repository head
   location:            https://github.com/hslua/hslua-module-doclayout.git
 
 common common-options
-  build-depends:       base              >= 4.9    && < 5
+  build-depends:       base              >= 4.11   && < 5
                      , doclayout         >= 0.2    && < 0.5
                      , hslua             >= 2.1    && < 2.3
                      , text              >= 1.2    && < 2.1
