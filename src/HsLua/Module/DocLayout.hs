@@ -247,7 +247,7 @@ render = defun "render"
   <#> docParam "doc"
   <#> opt (integralParam "colwidth" "planned maximum line length")
   =#> functionResult pushText "Doc" "rendered doc"
-  #? ("Render a @'Doc'@. The text is reflowed on breakable spaces" <>
+  #? ("Render a [[Doc]]. The text is reflowed on breakable spaces" <>
       "to match the given line length. Text is not reflowed if the" <>
       "line length parameter is omitted or nil.")
 
@@ -269,7 +269,7 @@ offset = defun "offset"
   ### liftPure Doc.offset
   <#> docParam "doc"
   =#> integralResult "doc width"
-  #? "Returns the width of a `Doc` as number of characters."
+  #? "Returns the width of a [[Doc]] as number of characters."
 
 -- | Returns the minimal width of a @'Doc'@ when reflowed at
 -- breakable spaces.
@@ -278,7 +278,7 @@ min_offset = defun "min_offset"
   ### liftPure Doc.minOffset
   <#> docParam "doc"
   =#> integralResult "minimal possible width"
-  #? ("Returns the minimal width of a `Doc` when reflowed at " <>
+  #? ("Returns the minimal width of a [[Doc]] when reflowed at " <>
       "breakable spaces.")
 
 -- | Returns the column that would be occupied by the last laid
@@ -324,7 +324,7 @@ after_break = defun "after_break"
   ### liftPure Doc.afterBreak
   <#> textParam "text" "content to include when placed after a break"
   =#> docResult "new doc"
-  #? ("Creates a `Doc` which is conditionally included only if it " <>
+  #? ("Creates a [[Doc]] which is conditionally included only if it " <>
       "comes at the beginning of a line.\n\n" <>
       "An example where this is useful is for escaping line-initial " <>
       "`.` in roff man.")
@@ -427,7 +427,7 @@ inside = defun "inside"
   <#> docParam "start"
   <#> docParam "end"
   =#> docResult "enclosed contents"
-  #? "Encloses a `Doc` inside a start and end `Doc`."
+  #? "Encloses a [[Doc]] inside a start and end [[Doc]]."
 
 -- | Creates a block with the given width and content, aligned to
 -- the left.
