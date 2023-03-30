@@ -247,9 +247,11 @@ render = defun "render"
   <#> docParam "doc"
   <#> opt (integralParam "colwidth" "planned maximum line length")
   =#> functionResult pushText "Doc" "rendered doc"
-  #? ("Render a [[Doc]]. The text is reflowed on breakable spaces" <>
-      "to match the given line length. Text is not reflowed if the" <>
-      "line length parameter is omitted or nil.")
+  #? T.unlines
+     [ "Render a [[Doc]]. The text is reflowed on breakable spaces to"
+     , "match the given line length. Text is not reflowed if the line"
+     , "line length parameter is omitted or nil."
+     ]
 
 --
 -- Querying
