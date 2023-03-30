@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : HsLua.Module.DocLayout
-Copyright   : © 2020-2022 Albert Krewinkel
+Copyright   : © 2020-2023 Albert Krewinkel
 License     : MIT
 Maintainer  : Albert Krewinkel <albert+hslua@zeitkraut.de>
 
