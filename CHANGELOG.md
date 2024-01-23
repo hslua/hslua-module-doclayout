@@ -3,11 +3,15 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## 1.1.0.1
+## 1.1.1
 
-Release pending.
+Released 2024-01-23.
 
--   Improved doc strings
+-   Relaxed upper bound for text, allowing text-2.1.
+
+-   Improved doc strings.
+
+-   Test with latest GHC versions.
 
 ## 1.1.0
 
