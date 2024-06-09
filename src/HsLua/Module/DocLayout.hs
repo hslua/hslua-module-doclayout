@@ -10,7 +10,7 @@ Copyright   : © 2020-2024 Albert Krewinkel
 License     : MIT
 Maintainer  : Albert Krewinkel <albert+hslua@zeitkraut.de>
 
-Provides a Lua module which wraps @'Text.DocLayout'@. The @Doc'
+Provides a Lua module which wraps @'Text.DocLayout'@. The @'Doc'@
 type is specialized to @'Text'@.
 
 This module defines orphan instances for @Doc Text@.
@@ -312,7 +312,7 @@ real_length = defun "real_length"
   <#> textParam "str" "UTF-8 string to measure"
   =#> integralResult "text length"
   #? ("Returns the real length of a string in a monospace font: " <>
-      "0 for a combining chaeracter, 1 for a regular character, " <>
+      "0 for a combining character, 1 for a regular character, " <>
       "2 for an East Asian wide character.")
 
 --
@@ -354,11 +354,11 @@ braces :: LuaError e => DocumentedFunction e
 braces = defun "braces"
   ### liftPure Doc.braces
   <#> docParam "doc"
-  =#> docResult "doc enclosed by {}."
+  =#> docResult "`doc` enclosed by {}."
   #? "Puts the `doc` in curly braces."
 
 -- | Puts a @'Doc'@ in square brackets.
-brackets :: LuaError e => DocumentedFunction e -- Doc Text -> Lua (Doc Text)
+brackets :: LuaError e => DocumentedFunction e
 brackets = defun "brackets"
   ### liftPure Doc.brackets
   <#> docParam "doc"
@@ -371,7 +371,7 @@ cblock = defun "cblock"
   ### liftPure2 (flip Doc.cblock)
   <#> docParam "doc"
   <#> integralParam "width" "block width in chars"
-  =#> docResult ("doc, aligned centered in a block with max" <>
+  =#> docResult ("doc, aligned centered in a block with max " <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
       "aligned centered.")
@@ -511,7 +511,7 @@ rblock = defun "rblock"
   ### liftPure2 (flip Doc.rblock)
   <#> docParam "doc"
   <#> integralParam "width" "block width in chars"
-  =#> docResult ("doc, right aligned in a block with max" <>
+  =#> docResult ("doc, right aligned in a block with max " <>
                  "`width` chars per line.")
   #? ("Creates a block with the given width and content, " <>
       "aligned to the right.")
