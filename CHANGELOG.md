@@ -3,6 +3,12 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.1.1.1
+
+Released 2024-06-09.
+
+-   Fixed minor typos in docstrings.
+
 ## 1.1.1
 
 Released 2024-01-23.
