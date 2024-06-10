@@ -246,7 +246,7 @@ render = defun "render"
   ### liftPure2 (flip Doc.render)
   <#> docParam "doc"
   <#> opt (integralParam "colwidth" "planned maximum line length")
-  =#> functionResult pushText "Doc" "rendered doc"
+  =#> functionResult pushText "string" "rendered doc"
   #? T.unlines
      [ "Render a [[Doc]]. The text is reflowed on breakable spaces to"
      , "match the given line length. Text is not reflowed if the line"
