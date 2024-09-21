@@ -63,6 +63,14 @@ module HsLua.Module.DocLayout (
   , real_length
   , update_column
 
+  -- * Styling
+  , bold
+  , italic
+  , underlined
+  , strikeout
+  , fg
+  , bg
+
   -- * Marshaling
   , peekDoc
   , pushDoc
@@ -188,6 +196,13 @@ functions =
   , offset
   , real_length
   , update_column
+    -- styling
+  , bold
+  , italic
+  , underlined
+  , strikeout
+  , fg
+  , bg
   ]
 
 typeDoc :: LuaError e => DocumentedType e (Doc Text)
@@ -539,6 +554,54 @@ vfill = defun "vfill"
       "list provided.")
 
 --
+-- Styling
+--
+
+bold :: LuaError e => DocumentedFunction e
+bold = defun "bold"
+  ### liftPure Doc.bold
+  <#> docParam "doc"
+  =#> docResult "bolded Doc"
+  #? "Puts a [[Doc]] in boldface."
+
+italic :: LuaError e => DocumentedFunction e
+italic = defun "italic"
+  ### liftPure Doc.italic
+  <#> docParam "doc"
+  =#> docResult "styled Doc"
+  #? "Puts a [[Doc]] in italics."
+
+underlined :: LuaError e => DocumentedFunction e
+underlined = defun "underlined"
+  ### liftPure Doc.underlined
+  <#> docParam "doc"
+  =#> docResult "styled Doc"
+  #? "Underlines a [[Doc]]."
+
+strikeout :: LuaError e => DocumentedFunction e
+strikeout = defun "strikeout"
+  ### liftPure Doc.strikeout
+  <#> docParam "doc"
+  =#> docResult "styled Doc"
+  #? "Puts a line through the [[Doc]]."
+
+fg :: LuaError e => DocumentedFunction e
+fg = defun "fg"
+  ### liftPure2 (flip Doc.fg)
+  <#> docParam "doc"
+  <#> colorParam
+  =#> docResult "styled Doc"
+  #? "Set the foreground color."
+
+bg :: LuaError e => DocumentedFunction e
+bg = defun "bg"
+  ### liftPure2 (flip Doc.bg)
+  <#> docParam "doc"
+  <#> colorParam
+  =#> docResult "styled Doc"
+  #? "Set the background color."
+
+--
 -- Marshaling
 --
 
@@ -570,6 +633,23 @@ instance Pushable (Doc Text) where
 -- | @Doc@ typed function parameter.
 docParam :: LuaError e => Text -> Parameter e (Doc Text)
 docParam name = parameter peekDoc "Doc" name "document"
+
+-- | @Color@ function parameter
+colorParam :: Parameter e Doc.Color
+colorParam = parameter peekColor "string" "color"
+  ("One of 'black', 'red', 'green', 'yellow', 'blue', 'magenta' " <>
+   "'cyan', or 'white'.")
+  where
+    peekColor idx = peekByteString idx >>= \case
+      "black"   -> pure Doc.black
+      "red"     -> pure Doc.red
+      "green"   -> pure Doc.green
+      "yellow"  -> pure Doc.yellow
+      "blue"    -> pure Doc.blue
+      "magenta" -> pure Doc.magenta
+      "cyan"    -> pure Doc.cyan
+      "white"   -> pure Doc.white
+      color -> failPeek $ "Unknown color: " <> color
 
 --
 -- Results

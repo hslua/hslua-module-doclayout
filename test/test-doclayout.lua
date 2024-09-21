@@ -8,6 +8,10 @@ local group = tasty.test_group
 local test = tasty.test_case
 local assert = tasty.assert
 
+local function renderANSI (doc, cols)
+  return doclayout.render(doc, cols, true)
+end
+
 -- Check existence static fields
 return {
   group 'constructors' {
@@ -242,6 +246,75 @@ return {
       -- assert.are_equal(doclayout.update_column(doclayout.empty, 42), 42)
       assert.are_equal(doclayout.update_column('four', 4), 8)
     end)
+  },
+
+  -- Styling happens per-character, so the output is quite verbose, and
+  -- includes additional commands to reset all attributes.
+  -- We just look for the right escape sequences instead of matching
+  -- the whole output.
+  group 'styling' {
+    test('bold', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.bold('a')):match('\027%[1m')
+      )
+    end),
+
+    test('italics', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.italic('a')):match('\027%[3m')
+      )
+    end),
+
+    test('underlined', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.underlined('a')):match('\027%[4m')
+      )
+    end),
+
+    test('strikeout', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.strikeout('a')):match('\027%[9m')
+      )
+    end),
+
+    test('fg', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.fg('a', 'red')):match('\027%[31m')
+      )
+    end),
+
+    test('bg', function ()
+      assert.is_truthy(
+        renderANSI(doclayout.bg('a', 'red')):match('\027%[41m')
+           )
+    end),
+
+    group 'colors' {
+      test('black', function ()
+        renderANSI(doclayout.bg('a', 'black')):match('\027%[40m')
+      end),
+      test('red', function ()
+        renderANSI(doclayout.bg('a', 'red')):match('\027%[41m')
+      end),
+      test('green', function ()
+        renderANSI(doclayout.bg('a', 'green')):match('\027%[42m')
+      end),
+      test('yellow', function ()
+        renderANSI(doclayout.bg('a', 'yellow')):match('\027%[43m')
+      end),
+      test('blue', function ()
+        renderANSI(doclayout.bg('a', 'blue')):match('\027%[44m')
+      end),
+      test('magenta', function ()
+        renderANSI(doclayout.bg('a', 'magenta')):match('\027%[45m')
+      end),
+      test('cyan', function ()
+        renderANSI(doclayout.bg('a', 'cyan')):match('\027%[46m')
+      end),
+      test('white', function ()
+        renderANSI(doclayout.bg('a', 'white')):match('\027%[47m')
+      end),
+    }
   },
 
   group 'Doc type' {
