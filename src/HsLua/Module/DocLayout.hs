@@ -268,15 +268,22 @@ render = defun "render"
            "Maximum number of characters per line.\n" <>
            "A value of `nil`, the default, means that the text " <>
            "is not reflown.")
-  <#> opt (boolParam "ansi" $
+  <#> opt (parameter peekRenderStyle "string" "style" $
            "Whether to generate plain text or ANSI terminal output.\n" <>
-           "Defaults to `false`.")
+           "Must be either `'plain'` or `'ansi'`.\n" <>
+           "Defaults to `'plain'`.")
   =#> functionResult pushText "string" "rendered doc"
   #? T.unlines
      [ "Render a [[Doc]]. The text is reflowed on breakable spaces to"
      , "match the given line length. Text is not reflowed if the line"
      , "line length parameter is omitted or nil."
      ]
+ where
+   peekRenderStyle idx = peekByteString idx >>= \case
+     "ansi"  -> pure True
+     "ANSI"  -> pure True
+     "plain" -> pure False
+     style   -> failPeek $ "Unknown rendering style: " <> style
 
 --
 -- Querying

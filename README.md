@@ -53,7 +53,7 @@ Documentation
 
 #### render
 
-`render (doc[, colwidth[, ansi]])`
+`render (doc[, colwidth[, style]])`
 
 Render the `Doc` using the given column width.
 
@@ -65,9 +65,9 @@ Parameters:
 `colwidth`
 :   Maximum number of characters per line
 
-`ansi`
-:   Whether to generate plain or ANSI terminal output. Defaults to
-    `false`.  (boolean)
+`style`
+:   Whether to generate 'plain' or 'ANSI' terminal output. Must be
+    either `'plain'` or `'ansi'`. Defaults to `'plain'`. (string)
 
 ### Doc construction
 

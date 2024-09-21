@@ -9,7 +9,7 @@ local test = tasty.test_case
 local assert = tasty.assert
 
 local function renderANSI (doc, cols)
-  return doclayout.render(doc, cols, true)
+  return doclayout.render(doc, cols, 'ansi')
 end
 
 -- Check existence static fields
