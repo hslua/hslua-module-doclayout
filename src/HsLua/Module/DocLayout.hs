@@ -76,6 +76,7 @@ import HsLua as Lua hiding (concat)
 import Text.DocLayout (Doc, (<+>), ($$), ($+$))
 
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
 import qualified Text.DocLayout as Doc
 
 --
@@ -243,9 +244,18 @@ typeDoc = deftype "Doc"
 -- line length parameter is omitted or nil.
 render :: LuaError e => DocumentedFunction e
 render = defun "render"
-  ### liftPure2 (flip Doc.render)
+  ### (\doc mbcolwidth useAnsi ->
+          if useAnsi == Just True
+          then pure $ TL.toStrict $ Doc.renderANSI mbcolwidth doc
+          else pure $ Doc.renderPlain mbcolwidth doc)
   <#> docParam "doc"
-  <#> opt (integralParam "colwidth" "planned maximum line length")
+  <#> opt (integralParam "colwidth" $
+           "Maximum number of characters per line.\n" <>
+           "A value of `nil`, the default, means that the text " <>
+           "is not reflown.")
+  <#> opt (boolParam "ansi" $
+           "Whether to generate plain text or ANSI terminal output.\n" <>
+           "Defaults to `false`.")
   =#> functionResult pushText "string" "rendered doc"
   #? T.unlines
      [ "Render a [[Doc]]. The text is reflowed on breakable spaces to"
