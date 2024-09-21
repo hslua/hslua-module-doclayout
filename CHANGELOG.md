@@ -3,6 +3,18 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.2.0
+
+Released 2024-09-21.
+
+-   Require doclayout-0.5.
+
+-   Add new styling functions `bold`, `italic`, `underlined`,
+    `strikeout`, `fg`, and `bg`.
+
+-   The `render` function now takes `style` as a third parameter.
+    It must be either 'plain' or 'ansi' when given.
+
 ## 1.1.1.2
 
 Released 2024-06-10.
