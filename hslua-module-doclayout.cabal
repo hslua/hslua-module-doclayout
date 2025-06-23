@@ -1,6 +1,6 @@
 cabal-version:       2.2
 name:                hslua-module-doclayout
-version:             1.2.0
+version:             1.2.0.1
 synopsis:            Lua module wrapping Text.DocLayout.
 description:         Lua module wrapping @Text.DocLayout@.
 homepage:            https://github.com/hslua/hslua-module-doclayout
@@ -9,7 +9,7 @@ license:             MIT
 license-file:        LICENSE
 author:              Albert Krewinkel
 maintainer:          Albert Krewinkel <albert@zeitkraut.de>
-copyright:           © 2020-2024 Albert Krewinkel
+copyright:           © 2020-2025 Albert Krewinkel
 category:            Foreign
 build-type:          Simple
 extra-doc-files:     README.md

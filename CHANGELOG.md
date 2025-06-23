@@ -3,6 +3,12 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.2.0.1
+
+Released 2025-06-23.
+
+-   Relaxed upper bound for hslua, allow hslua-2.4.
+
 ## 1.2.0
 
 Released 2024-09-21.
