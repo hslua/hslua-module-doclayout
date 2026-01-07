@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : HsLua.Module.DocLayout
-Copyright   : © 2020-2024 Albert Krewinkel
+Copyright   : © 2020-2026 Albert Krewinkel
 License     : MIT
 Maintainer  : Albert Krewinkel <albert+hslua@zeitkraut.de>
 
@@ -97,14 +97,11 @@ description = "Plain-text document layouting."
 
 -- | Self-documenting module.
 documentedModule :: LuaError e => Module e
-documentedModule = Module
-  { moduleName = "doclayout"
-  , moduleFields = fields
-  , moduleDescription = description
-  , moduleFunctions = functions
-  , moduleOperations = []
-  , moduleTypeInitializers = [initType typeDoc]
-  }
+documentedModule = defmodule "doclayout"
+  `withFields` fields
+  `withDescription` description
+  `withFunctions` functions
+  `associateType` typeDoc
 
 --
 -- Fields
@@ -121,41 +118,33 @@ fields =
 
 -- | Wrapped and documented 'Doc.blankline' value.
 blankline :: forall e. LuaError e => Field e
-blankline = Field
-  { fieldName = "blankline"
-  , fieldDescription = "Inserts a blank line unless one exists already."
-  , fieldType = udTypeSpec @e typeDoc
-  , fieldPushValue = pushDoc Doc.blankline
-  }
+blankline = deffield "blankline"
+  `withDescription` "Inserts a blank line unless one exists already."
+  `withType` udTypeSpec @e typeDoc
+  `withValue` pushDoc Doc.blankline
 
 -- | Wrapped and documented 'Doc.cr' value.
 cr :: forall e. LuaError e => Field e
-cr = Field
-  { fieldName = "cr"
-  , fieldDescription = "A carriage return. Does nothing if we're at " <>
-                       "the beginning of a line; " <>
-                       "otherwise inserts a newline."
-  , fieldType = udTypeSpec @e typeDoc
-  , fieldPushValue = pushDoc Doc.cr
-  }
+cr = deffield "cr"
+  `withDescription`
+    "A carriage return. Does nothing if we're at " <>
+    "the beginning of a line; otherwise inserts a newline."
+  `withType` udTypeSpec @e typeDoc
+  `withValue` pushDoc Doc.cr
 
 -- | Wrapped and documented 'Doc.empty' value.
 empty :: forall e. LuaError e => Field e
-empty = Field
-  { fieldName = "empty"
-  , fieldDescription = "The empty document."
-  , fieldType = udTypeSpec @e typeDoc
-  , fieldPushValue = pushDoc Doc.empty
-  }
+empty = deffield "empty"
+  `withDescription` "The empty document."
+  `withType` udTypeSpec @e typeDoc
+  `withValue` pushDoc Doc.empty
 
 -- | Wrapped and documented 'Doc.space' value.
 space :: forall e. LuaError e => Field e
-space = Field
-  { fieldName = "space"
-  , fieldDescription = "A breaking (reflowable) space."
-  , fieldType = udTypeSpec @e typeDoc
-  , fieldPushValue = pushDoc Doc.space
-  }
+space = deffield "space"
+  `withDescription` "A breaking (reflowable) space."
+  `withType` udTypeSpec @e typeDoc
+  `withValue` pushDoc Doc.space
 
 --
 -- Functions
