@@ -5,9 +5,9 @@ The changelog is available [on GitHub][2].
 
 ## 1.2.1
 
-Release pending.
+Released 2026-01-08.
 
--   Require hslua-2.4
+-   Require hslua-2.5.
 
 ## 1.2.0.1
 
