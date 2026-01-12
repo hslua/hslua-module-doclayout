@@ -410,10 +410,10 @@ concat :: LuaError e => DocumentedFunction e
 concat = defun "concat"
   ### liftPure2 (\docs optSep -> mconcat $
                   maybe docs (`intersperse` docs) optSep)
-  <#> parameter (peekList peekDoc) "`{Doc,...}`" "docs" "list of Docs"
+  <#> parameter (peekList peekDoc) "{Doc,...}" "docs" "list of Docs"
   <#> opt (parameter peekDoc "Doc" "sep" "separator (default: none)")
   =#> docResult "concatenated doc"
-  #? "Concatenates a list of `Doc`s."
+  #? "Concatenates a list of [[Doc]]s."
 
 -- | Wraps a @'Doc'@ in double quotes
 double_quotes :: LuaError e => DocumentedFunction e
@@ -421,7 +421,7 @@ double_quotes = defun "double_quotes"
   ### liftPure Doc.doubleQuotes
   <#> docParam "doc"
   =#> docResult "`doc` enclosed by `\"` chars"
-  #? "Wraps a `Doc` in double quotes."
+  #? "Wraps a [[Doc]] in double quotes."
 
 -- | Makes a @'Doc'@ flush against the left margin.
 flush :: LuaError e => DocumentedFunction e
@@ -429,7 +429,7 @@ flush = defun "flush"
   ### liftPure Doc.flush
   <#> docParam "doc"
   =#> docResult "flushed `doc`"
-  #? "Makes a `Doc` flush against the left margin."
+  #? "Makes a [[Doc]] flush against the left margin."
 
 -- | Creates a hanging indent.
 hang :: LuaError e => DocumentedFunction e
@@ -469,7 +469,7 @@ literal = defun "literal"
   ### liftPure Doc.literal
   <#> textParam "text" "literal value"
   =#> docResult "doc contatining just the literal string"
-  #? "Creates a `Doc` from a string."
+  #? "Creates a [[Doc]] from a string."
 
 -- | Indents a @'Doc'@ by the specified number of spaces.
 nest :: LuaError e => DocumentedFunction e
@@ -478,7 +478,7 @@ nest = defun "nest"
   <#> docParam "doc"
   <#> integralParam "ind" "indentation size"
   =#> docResult "`doc` indented by `ind` spaces"
-  #? "Indents a `Doc` by the specified number of spaces."
+  #? "Indents a [[Doc]] by the specified number of spaces."
 
 -- | Removes leading blank lines from a @'Doc'@.
 nestle :: LuaError e => DocumentedFunction e
@@ -486,7 +486,7 @@ nestle = defun "nestle"
   ### liftPure Doc.nestle
   <#> docParam "doc"
   =#> docResult "`doc` with leading blanks removed"
-  #? "Removes leading blank lines from a `Doc`."
+  #? "Removes leading blank lines from a [[Doc]]."
 
 -- | Makes a @'Doc'@ non-reflowable.
 nowrap :: LuaError e => DocumentedFunction e
@@ -494,7 +494,7 @@ nowrap = defun "nowrap"
   ### liftPure Doc.nowrap
   <#> docParam "doc"
   =#> docResult "same as input, but non-reflowable"
-  #? "Makes a `Doc` non-reflowable."
+  #? "Makes a [[Doc]] non-reflowable."
 
 -- | Puts a @'Doc'@ in parentheses.
 parens :: LuaError e => DocumentedFunction e
@@ -524,7 +524,7 @@ quotes = defun "quotes"
   ### liftPure Doc.quotes
   <#> docParam "doc"
   =#> docResult "doc enclosed in `'`."
-  #? "Wraps a `Doc` in single quotes."
+  #? "Wraps a [[Doc]] in single quotes."
 
 -- | Like @'rblock'@ but aligned to the right.
 rblock :: LuaError e => DocumentedFunction e
