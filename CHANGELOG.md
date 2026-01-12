@@ -3,9 +3,17 @@
 `hslua-module-doclayout` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.2.1.1
+
+Released 2026-01-12.
+
+-   Fixed types in function documentations: Use `[[Doc]]` instead
+    of `` `Doc` ``. This convention is already used in other hslua
+    modules to markup internal links.
+
 ## 1.2.1
 
-Release pending.
+Released 2026-01-07.
 
 -   Require hslua-2.4
 
